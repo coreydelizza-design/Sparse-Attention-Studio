@@ -145,54 +145,50 @@ function FootprintView({ onNav }) {
       </div>
     </div>
 
-    {/* ═══ ROW 1: Baseline Summary + Integrity ═══ */}
-    <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 14 }}>
-      {/* Summary Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
-        {[
-          { label: "Active Services", value: activeSvcs.length, sub: svcs.length + " total (incl. pilot/pending)", color: T.teal },
-          { label: "GTT-Enabled Sites", value: gttSites + " / " + totalSites, sub: Math.round(gttSites / totalSites * 100) + "% site coverage", color: T.blue },
-          { label: "Current MRR", value: "$" + totalMRR + "K", sub: "$" + (totalMRR * 12) + "K ARR", color: T.green },
-          { label: "Active Contracts", value: contracts.length, sub: contracts.filter(function (c) { return c.status === "Pilot"; }).length + " pilots · " + contracts.filter(function (c) { return c.status === "At Risk"; }).length + " at risk", color: T.amber },
-        ].map(function (c) {
-          return (<div key={c.label} style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "14px 16px" }}>
-            <div style={{ fontFamily: T.m, fontSize: 9, color: c.color, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 6 }}>{c.label}</div>
-            <div style={{ fontFamily: T.f, fontSize: 22, fontWeight: 700, color: T.tp }}>{c.value}</div>
-            <div style={{ fontFamily: T.f, fontSize: 10, color: T.td, marginTop: 2 }}>{c.sub}</div>
-          </div>);
-        })}
-      </div>
+    {/* ═══ ROW 1: Baseline Summary ═══ */}
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+      {[
+        { label: "Active Services", value: activeSvcs.length, sub: svcs.length + " total (incl. pilot/pending)", color: T.teal },
+        { label: "GTT-Enabled Sites", value: gttSites + " / " + totalSites, sub: Math.round(gttSites / totalSites * 100) + "% site coverage", color: T.blue },
+        { label: "Current MRR", value: "$" + totalMRR + "K", sub: "$" + (totalMRR * 12) + "K ARR", color: T.green },
+        { label: "Active Contracts", value: contracts.length, sub: contracts.filter(function (c) { return c.status === "Pilot"; }).length + " pilots · " + contracts.filter(function (c) { return c.status === "At Risk"; }).length + " at risk", color: T.amber },
+      ].map(function (c) {
+        return (<div key={c.label} style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
+          <div style={{ fontFamily: T.m, fontSize: 9, color: c.color, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>{c.label}</div>
+          <div style={{ fontFamily: T.f, fontSize: 24, fontWeight: 700, color: T.tp }}>{c.value}</div>
+          <div style={{ fontFamily: T.f, fontSize: 11, color: T.td, marginTop: 4 }}>{c.sub}</div>
+        </div>);
+      })}
+    </div>
 
-      {/* Baseline Integrity */}
-      <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "14px 16px", width: isPrep ? 280 : 210 }}>
+    {/* ═══ Baseline Integrity ═══ */}
+    <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
         <div style={{ fontFamily: T.m, fontSize: 9, color: T.teal, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>BASELINE INTEGRITY</div>
-        {isPrep ? (<div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {isPrep ? (<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
           <div><label style={lbl}>Prepared By</label><input value={integrity.preparedBy} onChange={function (e) { setIntegrity(Object.assign({}, integrity, { preparedBy: e.target.value })); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10 })} /></div>
           <div><label style={lbl}>Last Updated</label><input type="date" value={integrity.lastUpdated} onChange={function (e) { setIntegrity(Object.assign({}, integrity, { lastUpdated: e.target.value })); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10 })} /></div>
           <div><label style={lbl}>Data Confidence</label><select value={integrity.confidence} onChange={function (e) { setIntegrity(Object.assign({}, integrity, { confidence: e.target.value })); }} style={Object.assign({}, selS, { width: "100%", fontSize: 10 })}>{["High", "Medium", "Low"].map(function (o) { return <option key={o} value={o}>{o}</option>; })}</select></div>
           <div><label style={lbl}>Completeness %</label><input type="number" min={0} max={100} value={integrity.completeness} onChange={function (e) { setIntegrity(Object.assign({}, integrity, { completeness: Math.min(100, Math.max(0, Number(e.target.value) || 0)) })); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10, textAlign: "center" })} /></div>
           <div><label style={lbl}>Pending Validation Items</label><input type="number" min={0} value={integrity.pendingItems} onChange={function (e) { setIntegrity(Object.assign({}, integrity, { pendingItems: Math.max(0, Number(e.target.value) || 0) })); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10, textAlign: "center" })} /></div>
           <div><label style={lbl}>Source Systems</label><input value={integrity.sources} onChange={function (e) { setIntegrity(Object.assign({}, integrity, { sources: e.target.value })); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10 })} /></div>
-        </div>) : (<>
-          {[
-            { k: "Prepared By", v: integrity.preparedBy },
-            { k: "Last Updated", v: integrity.lastUpdated },
-            { k: "Data Confidence", v: integrity.confidence },
-            { k: "Completeness", v: integrity.completeness + "%" },
-            { k: "Pending Items", v: integrity.pendingItems },
-          ].map(function (r) {
-            var isConf = r.k === "Data Confidence";
-            return (<div key={r.k} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}>
-              <span style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>{r.k}</span>
-              <span style={{ fontFamily: T.m, fontSize: 9, fontWeight: 600, color: isConf ? confColor(r.v) : T.tp }}>{r.v}</span>
-            </div>);
-          })}
-          <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid " + T.border }}>
-            <div style={{ fontFamily: T.f, fontSize: 8, color: T.td }}>Sources: {integrity.sources}</div>
+        </div>) : (
+          <div style={{ display: "flex", gap: 20, flexWrap: "wrap", alignItems: "flex-start" }}>
+            {[
+              { k: "Prepared By", v: integrity.preparedBy },
+              { k: "Last Updated", v: integrity.lastUpdated },
+              { k: "Data Confidence", v: integrity.confidence, isConf: true },
+              { k: "Completeness", v: integrity.completeness + "%" },
+              { k: "Pending Items", v: String(integrity.pendingItems) },
+              { k: "Sources", v: integrity.sources },
+            ].map(function (r) {
+              return (<div key={r.k}>
+                <div style={{ fontFamily: T.f, fontSize: 9, color: T.td, marginBottom: 2 }}>{r.k}</div>
+                <div style={{ fontFamily: T.m, fontSize: 11, fontWeight: 600, color: r.isConf ? confColor(r.v) : T.tp }}>{r.v}</div>
+              </div>);
+            })}
           </div>
-        </>)}
+        )}
       </div>
-    </div>
 
     {/* ═══ ROW 2: Installed Service Baseline ═══ */}
     <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, overflow: "hidden" }}>
