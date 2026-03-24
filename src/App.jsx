@@ -393,13 +393,20 @@ function StakeholderView({ custAttendees, setCustAttendees, gttAttendees, setGtt
   const _sc = useState(false); const showCust = _sc[0]; const setShowCust = _sc[1];
   const _sg = useState(false); const showGtt = _sg[0]; const setShowGtt = _sg[1];
 
-  const coverageGaps = [
-    { gap: "No CISO identified", severity: "critical", detail: "Security transformation requires executive security sponsor" },
-    { gap: "No CFO / Finance contact", severity: "high", detail: "Business case approval needs finance stakeholder" },
-    { gap: "No Legal / Compliance lead", severity: "high", detail: "Contract renegotiation requires legal review" },
-    { gap: "Cloud owner access limited", severity: "medium", detail: "James Kim remote-only, 3-week engagement gap" },
-    { gap: "No NOC / Operations contact", severity: "medium", detail: "Day-2 operations handoff undefined" },
-  ];
+  const _gaps = useState([
+    { id: 1, stakeholder: "CISO", title: "Chief Information Security Officer", severity: "critical", notes: "Security transformation requires executive security sponsor" },
+    { id: 2, stakeholder: "CFO / Finance", title: "Chief Financial Officer", severity: "high", notes: "Business case approval needs finance stakeholder" },
+    { id: 3, stakeholder: "Legal / Compliance", title: "General Counsel", severity: "high", notes: "Contract renegotiation requires legal review" },
+    { id: 4, stakeholder: "Cloud Owner", title: "VP of Cloud & Platform", severity: "medium", notes: "James Kim remote-only, 3-week engagement gap" },
+    { id: 5, stakeholder: "NOC / Operations", title: "NOC Manager", severity: "medium", notes: "Day-2 operations handoff undefined" },
+  ]); const coverageGaps = _gaps[0]; const setCoverageGaps = _gaps[1];
+  const _showAddGap = useState(false); const showAddGap = _showAddGap[0]; const setShowAddGap = _showAddGap[1];
+  const gapStakeholders = ["CISO", "CFO / Finance", "CIO", "CTO", "COO", "Legal / Compliance", "Cloud Owner", "Network Owner", "Security Lead", "NOC / Operations", "Procurement", "IT Finance / FinOps", "Executive Sponsor", "Program Manager", "Other"];
+  const gapTitles = ["Chief Information Security Officer", "Chief Financial Officer", "Chief Information Officer", "Chief Technology Officer", "VP of Infrastructure", "VP of Network Engineering", "VP of IT Operations", "VP of Cloud & Platform", "VP of Security", "Director of Network Services", "Director of IT Security", "Director of Cloud Operations", "General Counsel", "NOC Manager", "IT Procurement Lead", "Program Manager", "Other"];
+  const gapSeverities = ["critical", "high", "medium", "low"];
+  function updateGap(id, field, value) { setCoverageGaps(coverageGaps.map(function(g) { return g.id === id ? Object.assign({}, g, (function(){ var o = {}; o[field] = value; return o; })()) : g; })); }
+  function removeGap(id) { setCoverageGaps(coverageGaps.filter(function(g) { return g.id !== id; })); }
+  function addGap() { setCoverageGaps(coverageGaps.concat([{ id: Date.now(), stakeholder: "Other", title: "Other", severity: "medium", notes: "" }])); setShowAddGap(false); }
 
   function addCust() {
     if (!custForm.name) return;
@@ -531,17 +538,37 @@ function StakeholderView({ custAttendees, setCustAttendees, gttAttendees, setGtt
     </div>
 
     {/* Coverage Gaps */}
-    <Disc tag="COVERAGE GAPS" tagColor={T.red} title="Missing stakeholders & access" summary={coverageGaps.length + " gaps identified — " + coverageGaps.filter(function(g){return g.severity==="critical";}).length + " critical"}>
-      {coverageGaps.map(function(g, i) {
-        return (<div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: i < coverageGaps.length - 1 ? "1px solid " + T.border : "none" }}>
-          <Sev s={g.severity} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{g.gap}</div>
-            <div style={{ fontFamily: T.f, fontSize: 11, color: T.td, marginTop: 2 }}>{g.detail}</div>
-          </div>
-        </div>);
-      })}
-    </Disc>
+    <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, overflow: "hidden" }}>
+      <div style={{ padding: "14px 18px", borderBottom: "1px solid " + T.border, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <span style={{ fontFamily: T.m, fontSize: 9, color: T.red, background: T.red + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>COVERAGE GAPS</span>
+          <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 5 }}>Missing stakeholders & access</div>
+          <div style={{ fontFamily: T.f, fontSize: 11, color: T.td, marginTop: 2 }}>{coverageGaps.length} gaps · {coverageGaps.filter(function(g){return g.severity==="critical";}).length} critical</div>
+        </div>
+        <button onClick={addGap} style={{ fontFamily: T.f, fontSize: 10, color: "#fff", background: T.red, border: "none", borderRadius: 5, padding: "5px 12px", cursor: "pointer" }}>+ Add Gap</button>
+      </div>
+      <div style={{ padding: "10px 18px" }}>
+        {coverageGaps.map(function(g, i) {
+          return (<div key={g.id} style={{ padding: "12px 0", borderBottom: i < coverageGaps.length - 1 ? "1px solid " + T.border : "none" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+              <select value={g.stakeholder} onChange={function(e) { updateGap(g.id, "stakeholder", e.target.value); }} style={Object.assign({}, selS, { fontSize: 11, fontWeight: 600 })}>
+                {gapStakeholders.map(function(s) { return <option key={s} value={s}>{s}</option>; })}
+              </select>
+              <select value={g.title} onChange={function(e) { updateGap(g.id, "title", e.target.value); }} style={Object.assign({}, selS, { fontSize: 10, color: T.ts })}>
+                {gapTitles.map(function(t) { return <option key={t} value={t}>{t}</option>; })}
+              </select>
+              <select value={g.severity} onChange={function(e) { updateGap(g.id, "severity", e.target.value); }} style={Object.assign({}, selS, { fontSize: 10 })}>
+                {gapSeverities.map(function(s) { return <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>; })}
+              </select>
+              <Sev s={g.severity} />
+              <button onClick={function() { removeGap(g.id); }} style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 11, marginLeft: "auto" }}>✕</button>
+            </div>
+            <input value={g.notes} onChange={function(e) { updateGap(g.id, "notes", e.target.value); }} placeholder="Notes..." style={Object.assign({}, iS, { fontSize: 11, color: T.ts })} />
+          </div>);
+        })}
+        {!coverageGaps.length && <div style={{ padding: 16, textAlign: "center", fontFamily: T.f, fontSize: 12, color: T.td, fontStyle: "italic" }}>No coverage gaps identified</div>}
+      </div>
+    </div>
   </div>);
 }
 
