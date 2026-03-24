@@ -43,15 +43,16 @@ function FootprintView({ onNav }) {
   ]); var svcs = _svcs[0]; var setSvcs = _svcs[1];
 
   /* ── Regions ── */
+  var GLOBAL_REGIONS = ["North America", "LATAM", "EMEA", "APAC", "Global"];
   var _regions = useState([
-    { id: 1, name: "Northeast US", sites: 34, gttSites: 34, services: ["MPLS", "DIA", "SIP", "LTE", "SD-WAN", "EnvisionDX"], entity: "Core", penetration: 72 },
-    { id: 2, name: "Southeast US", sites: 28, gttSites: 22, services: ["MPLS", "DIA", "SIP"], entity: "Core", penetration: 58 },
-    { id: 3, name: "Midwest US", sites: 22, gttSites: 14, services: ["MPLS", "DIA"], entity: "Core", penetration: 42 },
-    { id: 4, name: "West US", sites: 19, gttSites: 14, services: ["MPLS", "DIA", "LTE"], entity: "Core", penetration: 55 },
-    { id: 5, name: "Canada", sites: 22, gttSites: 12, services: ["MPLS", "DIA"], entity: "Core", penetration: 38 },
-    { id: 6, name: "Pinnacle Insurance", sites: 38, gttSites: 38, services: ["MPLS"], entity: "Acquired", penetration: 15 },
-    { id: 7, name: "NorthStar Wealth", sites: 12, gttSites: 0, services: [], entity: "Acquired", penetration: 0 },
-    { id: 8, name: "Data Centers / DR", sites: 3, gttSites: 3, services: ["DIA", "Cloud Connect", "MPLS", "SIP", "EnvisionDX"], entity: "Core", penetration: 92 },
+    { id: 1, name: "Northeast US", globalRegion: "North America", sites: 34, gttSites: 34, services: ["MPLS", "DIA", "SIP", "LTE", "SD-WAN", "EnvisionDX"], entity: "Core", penetration: 72 },
+    { id: 2, name: "Southeast US", globalRegion: "North America", sites: 28, gttSites: 22, services: ["MPLS", "DIA", "SIP"], entity: "Core", penetration: 58 },
+    { id: 3, name: "Midwest US", globalRegion: "North America", sites: 22, gttSites: 14, services: ["MPLS", "DIA"], entity: "Core", penetration: 42 },
+    { id: 4, name: "West US", globalRegion: "North America", sites: 19, gttSites: 14, services: ["MPLS", "DIA", "LTE"], entity: "Core", penetration: 55 },
+    { id: 5, name: "Canada", globalRegion: "North America", sites: 22, gttSites: 12, services: ["MPLS", "DIA"], entity: "Core", penetration: 38 },
+    { id: 6, name: "Pinnacle Insurance", globalRegion: "North America", sites: 38, gttSites: 38, services: ["MPLS"], entity: "Acquired", penetration: 15 },
+    { id: 7, name: "NorthStar Wealth", globalRegion: "North America", sites: 12, gttSites: 0, services: [], entity: "Acquired", penetration: 0 },
+    { id: 8, name: "Data Centers / DR", globalRegion: "North America", sites: 3, gttSites: 3, services: ["DIA", "Cloud Connect", "MPLS", "SIP", "EnvisionDX"], entity: "Core", penetration: 92 },
   ]); var regions = _regions[0]; var setRegions = _regions[1];
 
   /* ── Contracts ── */
@@ -352,13 +353,14 @@ function FootprintView({ onNav }) {
           <span style={{ fontFamily: T.m, fontSize: 9, color: T.blue, background: T.blue + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>PRESENCE & COVERAGE</span>
           <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 5 }}>{regions.length} regions · {gttSites} GTT-enabled sites</div>
         </div>
-        {isPrep && <button onClick={function () { setRegions(regions.concat([{ id: Date.now(), name: "New Region", sites: 0, gttSites: 0, services: [], entity: "Core", penetration: 0 }])); }} style={{ fontFamily: T.f, fontSize: 10, color: "#fff", background: T.blue, border: "none", borderRadius: 5, padding: "5px 12px", cursor: "pointer" }}>+ Add Region</button>}
+        {isPrep && <button onClick={function () { setRegions(regions.concat([{ id: Date.now(), name: "New Region", globalRegion: "North America", sites: 0, gttSites: 0, services: [], entity: "Core", penetration: 0 }])); }} style={{ fontFamily: T.f, fontSize: 10, color: "#fff", background: T.blue, border: "none", borderRadius: 5, padding: "5px 12px", cursor: "pointer" }}>+ Add Region</button>}
       </div>
       <div style={{ padding: "6px 18px" }}>
         {regions.map(function (r, i) {
           return (<div key={r.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: i < regions.length - 1 ? "1px solid " + T.border : "none", flexWrap: isPrep ? "wrap" : "nowrap" }}>
             {isPrep ? (<>
               <input value={r.name} onChange={function (e) { updReg(r.id, "name", e.target.value); }} style={Object.assign({}, smI, { width: 140, fontSize: 11, fontWeight: 600 })} />
+              <select value={r.globalRegion || "North America"} onChange={function (e) { updReg(r.id, "globalRegion", e.target.value); }} style={Object.assign({}, selS, { fontSize: 9 })}>{GLOBAL_REGIONS.map(function (o) { return <option key={o} value={o}>{o}</option>; })}</select>
               <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 <label style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>Sites</label>
                 <input type="number" value={r.sites} onChange={function (e) { updReg(r.id, "sites", Number(e.target.value) || 0); }} style={Object.assign({}, smI, { width: 44, textAlign: "center", fontSize: 10 })} />
@@ -377,6 +379,7 @@ function FootprintView({ onNav }) {
               <div style={{ flex: 1 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <span style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{r.name}</span>
+                  <span style={{ fontFamily: T.m, fontSize: 8, color: T.blue, background: T.blue + "10", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase" }}>{r.globalRegion || "North America"}</span>
                   {r.entity === "Acquired" && <span style={{ fontFamily: T.m, fontSize: 8, color: T.amber, background: T.amber + "12", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase" }}>Acquired</span>}
                 </div>
                 <div style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>{r.gttSites}/{r.sites} sites · {r.services.length > 0 ? r.services.join(", ") : "No GTT services"}</div>
