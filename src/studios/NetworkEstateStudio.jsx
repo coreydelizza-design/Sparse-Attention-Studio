@@ -89,6 +89,8 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
   var _wanTypes = useState({ MPLS: true, DIA: true, Broadband: true, "LTE/5G": true, "Cloud Connect": true, "SIP/Voice": true, "SD-WAN": true }); var wanTypes = _wanTypes[0]; var setWanTypes = _wanTypes[1];
   var _mgmt = useState("Mixed"); var mgmt = _mgmt[0]; var setMgmt = _mgmt[1];
   var _topo = useState("Hub-Spoke"); var topo = _topo[0]; var setTopo = _topo[1];
+  var _annualSpend = useState("$4.2M"); var annualSpend = _annualSpend[0]; var setAnnualSpend = _annualSpend[1];
+  var _complexity = useState({ "Acquired entities": true, "Legacy estates": true, "Regional exceptions": true, "Regulated sites": false, "Uptime-sensitive": true, "International": true }); var complexity = _complexity[0]; var setComplexity = _complexity[1];
 
   /* Strategy decisions */
   var _d1 = useState(""); var d1 = _d1[0]; var setD1 = _d1[1];
@@ -96,7 +98,34 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
   var _d3 = useState(""); var d3 = _d3[0]; var setD3 = _d3[1];
   var _d4 = useState(""); var d4 = _d4[0]; var setD4 = _d4[1];
 
+  /* Lifecycle CPE (editable) */
+  var _cpe = useState([
+    { id: 1, device: "Cisco ISR 4331", qty: 87, age: "3-5 yr", status: "Aging", region: "US Branches", urgency: "medium" },
+    { id: 2, device: "Cisco ASA 5506", qty: 38, age: "6+ yr", status: "EOL", region: "Pinnacle", urgency: "critical" },
+    { id: 3, device: "FortiGate 60F", qty: 8, age: "<1 yr", status: "Current", region: "NE Pilot", urgency: "low" },
+    { id: 4, device: "Cisco 2960X", qty: 125, age: "4-6 yr", status: "Aging", region: "All Sites", urgency: "medium" },
+    { id: 5, device: "Cisco Aironet", qty: 340, age: "5-7 yr", status: "EOS", region: "All Sites", urgency: "high" },
+  ]); var cpe = _cpe[0]; var setCpe = _cpe[1];
+  function updCpe(id, f, v) { setCpe(cpe.map(function (c) { return c.id === id ? Object.assign({}, c, (function () { var o = {}; o[f] = v; return o; })()) : c; })); }
+
+  /* Editable signals per topic */
+  var _signals = useState({
+    connectivity: ["MPLS rationalization — $2.1M contract non-renew creates displacement window", "SD-WAN attach — 8-site pilot proven, 125+ site expansion path", "Resiliency uplift — 45% of sites single-connected", "Provider consolidation — 6 providers to 1-2 strategic partners"],
+    operations: ["Managed network services — no after-hours NOC, weak change governance", "EnvisionDX — fragmented monitoring, no single pane of glass", "Technical support overlay — multi-vendor coordination burden on customer IT", "MACD / change support — customer handling config manually"],
+    lifecycle: ["Pinnacle CPE refresh — 38 EOL Cisco ASAs, natural modernization wedge", "Lifecycle support — standardize under managed lifecycle governance", "Wi-Fi refresh — 340 aging APs across all sites, Wi-Fi 6E opportunity", "Branch modernization bundle — CPE + SD-WAN + monitoring in one motion"],
+    strategy: ["Phased SD-WAN — pilot proven, expand NE → SE → all regions", "Managed services wrapper — support simplification across full estate", "Provider consolidation — reduce from 6 to 1-2, simplify commercial", "Acquired entity fast-track — Pinnacle + NorthStar integration as early wins"],
+  }); var signals = _signals[0]; var setSignals = _signals[1];
+  var _newSig = useState(""); var newSig = _newSig[0]; var setNewSig = _newSig[1];
+  function addSignal(topicKey) { if (!newSig.trim()) return; var u = Object.assign({}, signals); u[topicKey] = (u[topicKey] || []).concat([newSig.trim()]); setSignals(u); setNewSig(""); }
+  function rmSignal(topicKey, idx) { var u = Object.assign({}, signals); u[topicKey] = (u[topicKey] || []).filter(function (_, i) { return i !== idx; }); setSignals(u); }
+
+  /* Section-level notes */
+  var _sectionNotes = useState({}); var sectionNotes = _sectionNotes[0]; var setSectionNotes = _sectionNotes[1];
+  function getSectionNote(key) { return sectionNotes[key] || ""; }
+  function setSectionNote(key, val) { var u = Object.assign({}, sectionNotes); u[key] = val; setSectionNotes(u); }
+
   /* GTT solution mapping */
+  var GTT_SOLUTIONS = ["Managed SD-WAN", "DIA", "Broadband", "MPLS", "LTE / 5G Backup", "Security Edge / SASE", "SIP / Voice", "Cloud Connect", "EnvisionDX", "EnvisionEdge", "VDC", "Managed Network Services", "Lifecycle Support + Branch Modernization", "SD-WAN + Cloud Connect", "DIA + SD-WAN Greenfield", "Technical Support Add-On", "MACD / Change Support", "Monitoring / Management Support", "Other"];
   var _solutions = useState([
     { id: 1, issue: "Legacy MPLS with single-provider lock-in", solution: "Managed SD-WAN", confidence: "High", note: "Replace AT&T MPLS, phased by region" },
     { id: 2, issue: "45% of sites no backup connectivity", solution: "LTE / 5G Backup", confidence: "High", note: "Resiliency uplift across all branch tiers" },
@@ -107,8 +136,44 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
     { id: 7, issue: "No security edge / SASE presence", solution: "Security Edge / SASE", confidence: "Medium", note: "Adjacency — explore in Security Studio" },
     { id: 8, issue: "NorthStar 12 sites not on WAN", solution: "DIA + SD-WAN Greenfield", confidence: "Medium", note: "Greenfield build — fast deployment opportunity" },
   ]); var solutions = _solutions[0]; var setSolutions = _solutions[1];
+  function updSol(id, f, v) { setSolutions(solutions.map(function (s) { return s.id === id ? Object.assign({}, s, (function () { var o = {}; o[f] = v; return o; })()) : s; })); }
+
+  /* GTT Opportunity themes (editable) */
+  var _themes = useState([
+    { id: 1, theme: "MPLS rationalization + Managed SD-WAN", phase: "Phase 1", confidence: "High" },
+    { id: 2, theme: "Branch resiliency uplift + LTE backup", phase: "Phase 1", confidence: "High" },
+    { id: 3, theme: "Pinnacle CPE refresh + lifecycle support", phase: "Phase 1", confidence: "High" },
+    { id: 4, theme: "Monitoring consolidation + EnvisionDX", phase: "Phase 2", confidence: "Medium" },
+    { id: 5, theme: "Managed network services + 24x7 support", phase: "Phase 2", confidence: "Medium" },
+    { id: 6, theme: "NorthStar greenfield + SD-WAN deploy", phase: "Phase 2", confidence: "Medium" },
+  ]); var themes = _themes[0]; var setThemes = _themes[1];
+  function updTheme(id, f, v) { setThemes(themes.map(function (t) { return t.id === id ? Object.assign({}, t, (function () { var o = {}; o[f] = v; return o; })()) : t; })); }
 
   /* ═══════ RENDER HELPERS ═══════ */
+
+  /* Section note input (compact, for any card) */
+  function renderSectionNote(key, placeholder) {
+    return (<div style={{ marginTop: 8 }}>
+      <input value={getSectionNote(key)} onChange={function (e) { setSectionNote(key, e.target.value); }} placeholder={placeholder || "Add a note..."} style={Object.assign({}, iS, { fontSize: 11, color: T.ts })} />
+    </div>);
+  }
+
+  /* Editable signals list */
+  function renderSignals(topicKey) {
+    var list = signals[topicKey] || [];
+    return (<div>
+      {list.map(function (s, i) {
+        return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 0", borderBottom: i < list.length - 1 ? "1px solid " + T.border : "none" }}>
+          <span style={{ fontFamily: T.f, fontSize: 11, color: T.tp, flex: 1 }}>● {s}</span>
+          <button onClick={function () { rmSignal(topicKey, i); }} style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 10 }}>✕</button>
+        </div>);
+      })}
+      <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+        <input value={newSig} onChange={function (e) { setNewSig(e.target.value); }} onKeyDown={function (e) { if (e.key === "Enter") addSignal(topicKey); }} placeholder="Add signal..." style={Object.assign({}, iS, { flex: 1, fontSize: 11 })} />
+        <button onClick={function () { addSignal(topicKey); }} style={{ fontFamily: T.f, fontSize: 10, fontWeight: 600, color: "#fff", background: T.violet, border: "none", borderRadius: 5, padding: "6px 10px", cursor: "pointer", whiteSpace: "nowrap" }}>+ Add</button>
+      </div>
+    </div>);
+  }
 
   /* Notes panel (reused in every topic) */
   function renderNotes() {
@@ -151,41 +216,43 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
       {/* Facts */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
         <div style={{ fontFamily: T.m, fontSize: 9, color: T.blue, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>FACTS</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
-          {[
-            { l: "Total Sites", v: totalSites },
-            { l: "Regions", v: sites.length },
-            { l: "Providers", v: providers.length },
-            { l: "Data Centers", v: sites.filter(function (s) { return s.type === "Data Center"; }).length },
-            { l: "Acquired Entities", v: sites.filter(function (s) { return s.type === "Acquired"; }).length },
-            { l: "Annual Spend", v: "$4.2M" },
-          ].map(function (f) {
-            return <div key={f.l}><div style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>{f.l}</div><div style={{ fontFamily: T.f, fontSize: 18, fontWeight: 700, color: T.tp }}>{f.v}</div></div>;
-          })}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 12 }}>
+          <div><div style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>Total Sites</div><div style={{ fontFamily: T.f, fontSize: 18, fontWeight: 700, color: T.tp }}>{totalSites}</div></div>
+          <div><div style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>Regions</div><div style={{ fontFamily: T.f, fontSize: 18, fontWeight: 700, color: T.tp }}>{sites.length}</div></div>
+          <div><div style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>Providers</div><div style={{ fontFamily: T.f, fontSize: 18, fontWeight: 700, color: T.tp }}>{providers.length}</div></div>
+          <div><div style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>Data Centers</div><div style={{ fontFamily: T.f, fontSize: 18, fontWeight: 700, color: T.tp }}>{sites.filter(function (s) { return s.type === "Data Center"; }).length}</div></div>
+          <div><div style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>Acquired Entities</div><div style={{ fontFamily: T.f, fontSize: 18, fontWeight: 700, color: T.tp }}>{sites.filter(function (s) { return s.type === "Acquired"; }).length}</div></div>
+          <div><div style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>Annual Spend</div><input value={annualSpend} onChange={function (e) { setAnnualSpend(e.target.value); }} style={Object.assign({}, smI, { fontSize: 14, fontWeight: 700, width: 80, padding: "2px 6px" })} /></div>
         </div>
-        <div style={{ marginTop: 12 }}>
-          <div style={{ fontFamily: T.f, fontSize: 9, color: T.td, marginBottom: 4 }}>Site Classes</div>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {sites.map(function (s) {
-              return <span key={s.id} style={{ fontFamily: T.f, fontSize: 10, color: T.tp, background: T.border, padding: "3px 8px", borderRadius: 4 }}>{s.region} ({s.count} · {s.type})</span>;
-            })}
-          </div>
-        </div>
+        <div style={{ fontFamily: T.f, fontSize: 9, color: T.td, marginBottom: 4 }}>Site Inventory</div>
+        {sites.map(function (s, i) {
+          return (<div key={s.id} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 0", borderBottom: i < sites.length - 1 ? "1px solid " + T.border : "none" }}>
+            <span style={{ fontFamily: T.f, fontSize: 11, fontWeight: 600, color: T.tp, width: 110, flexShrink: 0 }}>{s.region}</span>
+            <select value={s.type} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { type: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 9 })}>{["Branch", "Retail", "Acquired", "HQ / Campus", "Data Center", "DR Site", "Remote"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
+            <input type="number" value={s.count} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { count: Number(e.target.value) || 0 }) : x; })); }} style={Object.assign({}, smI, { width: 40, textAlign: "center", fontSize: 10 })} />
+            <span style={{ fontFamily: T.f, fontSize: 9, color: T.td, flex: 1 }}>{s.circuit} · {s.bandwidth}</span>
+            <button onClick={function () { setSites(sites.filter(function (x) { return x.id !== s.id; })); }} style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 10 }}>✕</button>
+          </div>);
+        })}
+        <button onClick={function () { setSites(sites.concat([{ id: Date.now(), region: "New Region", type: "Branch", count: 0, states: "", circuit: "MPLS", bandwidth: "100 Mbps", provider: "", notes: "" }])); }} style={{ fontFamily: T.f, fontSize: 10, color: T.blue, background: "none", border: "1px dashed " + T.blue + "44", borderRadius: 5, padding: "5px 10px", cursor: "pointer", marginTop: 6, width: "100%" }}>+ Add Site Group</button>
+        {renderSectionNote("estate-facts", "Note on estate baseline...")}
       </div>
       {/* Discussion */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
         <div style={{ fontFamily: T.m, fontSize: 9, color: T.green, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>DISCUSSION</div>
         {renderNotes()}
       </div>
-      {/* Open Items */}
+      {/* Decisions & Open Items */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
         <div style={{ fontFamily: T.m, fontSize: 9, color: T.amber, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>DECISIONS & OPEN ITEMS</div>
+        <div style={{ fontFamily: T.f, fontSize: 10, color: T.td, marginBottom: 6 }}>Structural complexity flags:</div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <span style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>Structural complexity:</span>
-          {["Acquired entities", "Legacy estates", "Regional exceptions", "Regulated sites", "Uptime-sensitive", "International"].map(function (c) {
-            return <span key={c} style={{ fontFamily: T.f, fontSize: 10, color: T.tp, background: T.blue + "10", padding: "3px 8px", borderRadius: 4, border: "1px solid " + T.blue + "22" }}>{c}</span>;
+          {Object.keys(complexity).map(function (c) {
+            var on = complexity[c];
+            return <button key={c} onClick={function () { var u = Object.assign({}, complexity); u[c] = !on; setComplexity(u); }} style={{ fontFamily: T.f, fontSize: 10, padding: "4px 10px", borderRadius: 12, border: "1.5px solid " + (on ? T.blue : T.border), background: on ? T.blue + "10" : "transparent", color: on ? T.blue : T.td, cursor: "pointer" }}>{on ? "● " : "○ "}{c}</button>;
           })}
         </div>
+        {renderSectionNote("estate-decisions", "Note on decisions...")}
       </div>
     </div>);
   }
@@ -211,13 +278,15 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
         </div>
         <div style={{ fontFamily: T.f, fontSize: 9, color: T.td, marginBottom: 4 }}>Provider Landscape</div>
         {providers.map(function (p, i) {
-          return (<div key={p.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: i < providers.length - 1 ? "1px solid " + T.border : "none" }}>
-            <span style={{ fontFamily: T.f, fontSize: 11, fontWeight: 600, color: T.tp, width: 80 }}>{p.name}</span>
+          return (<div key={p.id} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 0", borderBottom: i < providers.length - 1 ? "1px solid " + T.border : "none" }}>
+            <span style={{ fontFamily: T.f, fontSize: 11, fontWeight: 600, color: T.tp, width: 70, flexShrink: 0 }}>{p.name}</span>
             <span style={{ fontFamily: T.f, fontSize: 10, color: T.ts, flex: 1 }}>{p.type} · {p.sites} sites</span>
             <span style={{ fontFamily: T.m, fontSize: 10, color: T.tp }}>{p.cost}</span>
-            <span style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>{p.expiry}</span>
+            <span style={{ fontFamily: T.f, fontSize: 9, color: T.td, width: 55, flexShrink: 0 }}>{p.expiry}</span>
+            <select value={p.action} onChange={function (e) { setProviders(providers.map(function (x) { return x.id === p.id ? Object.assign({}, x, { action: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 9 })}>{["Retain", "Retain & Expand", "Non-Renew", "Early Terminate", "Renegotiate", "Evaluate"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
           </div>);
         })}
+        {renderSectionNote("conn-facts", "Note on connectivity baseline...")}
       </div>
       {/* Discussion */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
@@ -234,14 +303,7 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
       {/* Opportunity Signals */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
         <div style={{ fontFamily: T.m, fontSize: 9, color: T.violet, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>OPPORTUNITY SIGNALS</div>
-        {[
-          "MPLS rationalization — $2.1M contract non-renew creates displacement window",
-          "SD-WAN attach — 8-site pilot proven, 125+ site expansion path",
-          "Resiliency uplift — 45% of sites single-connected",
-          "Provider consolidation — 6 providers to 1-2 strategic partners",
-        ].map(function (s, i) {
-          return <div key={i} style={{ fontFamily: T.f, fontSize: 11, color: T.tp, padding: "6px 0", borderBottom: i < 3 ? "1px solid " + T.border : "none" }}>● {s}</div>;
-        })}
+        {renderSignals("connectivity")}
       </div>
     </div>);
   }
@@ -269,6 +331,7 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
             return <button key={m} onClick={function () { setMgmt(m); }} style={{ fontFamily: T.f, fontSize: 10, padding: "4px 10px", borderRadius: 4, border: "1.5px solid " + (on ? T.blue : T.border), background: on ? T.blue + "12" : "transparent", color: on ? T.blue : T.td, cursor: "pointer", fontWeight: on ? 600 : 400 }}>{m}</button>;
           })}
         </div>
+        {renderSectionNote("ops-facts", "Note on operational posture...")}
       </div>
       {/* Discussion */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
@@ -279,50 +342,43 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
         <div style={{ fontFamily: T.m, fontSize: 9, color: T.amber, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>DECISIONS & OPEN ITEMS</div>
         <Decision question="Operations model?" options={["Self-Managed", "Managed", "Co-Managed", "Evaluate"]} selected={d3} onSelect={setD3} color={T.blue} />
+        {renderSectionNote("ops-decisions", "Note on ops decisions...")}
       </div>
       {/* Opportunity */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
         <div style={{ fontFamily: T.m, fontSize: 9, color: T.violet, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>OPPORTUNITY SIGNALS</div>
-        {[
-          "Managed network services — no after-hours NOC, weak change governance",
-          "EnvisionDX — fragmented monitoring, no single pane of glass",
-          "Technical support overlay — multi-vendor coordination burden on customer IT",
-          "MACD / change support — customer handling config manually",
-        ].map(function (s, i) {
-          return <div key={i} style={{ fontFamily: T.f, fontSize: 11, color: T.tp, padding: "6px 0", borderBottom: i < 3 ? "1px solid " + T.border : "none" }}>● {s}</div>;
-        })}
+        {renderSignals("operations")}
       </div>
     </div>);
   }
 
   function renderLifecycle() {
-    var cpe = [
-      { device: "Cisco ISR 4331", qty: 87, age: "3-5 yr", status: "Aging", region: "US Branches", urgency: "medium" },
-      { device: "Cisco ASA 5506", qty: 38, age: "6+ yr", status: "EOL", region: "Pinnacle", urgency: "critical" },
-      { device: "FortiGate 60F", qty: 8, age: "<1 yr", status: "Current", region: "NE Pilot", urgency: "low" },
-      { device: "Cisco 2960X", qty: 125, age: "4-6 yr", status: "Aging", region: "All Sites", urgency: "medium" },
-      { device: "Cisco Aironet", qty: 340, age: "5-7 yr", status: "EOS", region: "All Sites", urgency: "high" },
-    ];
-    var eolPct = Math.round(cpe.filter(function (c) { return c.status === "EOL" || c.status === "EOS"; }).reduce(function (a, c) { return a + c.qty; }, 0) / cpe.reduce(function (a, c) { return a + c.qty; }, 0) * 100);
+    var totalDevices = cpe.reduce(function (a, c) { return a + c.qty; }, 0);
+    var eolPct = totalDevices > 0 ? Math.round(cpe.filter(function (c) { return c.status === "EOL" || c.status === "EOS"; }).reduce(function (a, c) { return a + c.qty; }, 0) / totalDevices * 100) : 0;
     return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       {/* Facts */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
-        <div style={{ fontFamily: T.m, fontSize: 9, color: T.blue, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>FACTS — LIFECYCLE & REFRESH RISK</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+          <div style={{ fontFamily: T.m, fontSize: 9, color: T.blue, letterSpacing: 1.2, textTransform: "uppercase" }}>FACTS — LIFECYCLE & REFRESH RISK</div>
+          <button onClick={function () { setCpe(cpe.concat([{ id: Date.now(), device: "", qty: 0, age: "", status: "Current", region: "", urgency: "low" }])); }} style={{ fontFamily: T.f, fontSize: 9, color: T.blue, background: "none", border: "1px dashed " + T.blue + "44", borderRadius: 4, padding: "3px 8px", cursor: "pointer" }}>+ Add Device</button>
+        </div>
         <div style={{ display: "flex", gap: 16, marginBottom: 12 }}>
           <div><div style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>Past EOS/EOL</div><div style={{ fontFamily: T.f, fontSize: 22, fontWeight: 700, color: T.red }}>{eolPct}%</div></div>
-          <div><div style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>Total Devices</div><div style={{ fontFamily: T.f, fontSize: 22, fontWeight: 700, color: T.tp }}>{cpe.reduce(function (a, c) { return a + c.qty; }, 0)}</div></div>
+          <div><div style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>Total Devices</div><div style={{ fontFamily: T.f, fontSize: 22, fontWeight: 700, color: T.tp }}>{totalDevices}</div></div>
         </div>
         {cpe.map(function (c, i) {
           var uc = c.urgency === "critical" ? T.red : c.urgency === "high" ? T.amber : c.urgency === "medium" ? T.blue : T.td;
           var sc = c.status === "Current" ? T.green : c.status === "Aging" ? T.amber : T.red;
-          return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 0", borderBottom: i < cpe.length - 1 ? "1px solid " + T.border : "none" }}>
-            <span style={{ fontFamily: T.f, fontSize: 11, fontWeight: 600, color: T.tp, width: 120, flexShrink: 0 }}>{c.device}</span>
-            <span style={{ fontFamily: T.m, fontSize: 10, color: T.tp, width: 30, textAlign: "center" }}>{c.qty}</span>
-            <span style={{ fontFamily: T.m, fontSize: 9, color: sc, background: sc + "12", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase", width: 42, textAlign: "center" }}>{c.status}</span>
-            <span style={{ fontFamily: T.f, fontSize: 10, color: T.td, flex: 1 }}>{c.region} · {c.age}</span>
-            <span style={{ fontFamily: T.m, fontSize: 8, color: uc, background: uc + "12", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase" }}>{c.urgency}</span>
+          return (<div key={c.id} style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 0", borderBottom: i < cpe.length - 1 ? "1px solid " + T.border : "none" }}>
+            <input value={c.device} onChange={function (e) { updCpe(c.id, "device", e.target.value); }} style={Object.assign({}, smI, { width: 110, fontSize: 10, fontWeight: 600 })} placeholder="Device..." />
+            <input type="number" value={c.qty} onChange={function (e) { updCpe(c.id, "qty", Number(e.target.value) || 0); }} style={Object.assign({}, smI, { width: 38, textAlign: "center", fontSize: 10 })} />
+            <select value={c.status} onChange={function (e) { updCpe(c.id, "status", e.target.value); }} style={Object.assign({}, selS, { fontSize: 9, color: sc })}>{["Current", "Aging", "EOS", "EOL"].map(function (o) { return <option key={o} value={o}>{o}</option>; })}</select>
+            <input value={c.region} onChange={function (e) { updCpe(c.id, "region", e.target.value); }} style={Object.assign({}, smI, { flex: 1, fontSize: 9 })} placeholder="Region..." />
+            <select value={c.urgency} onChange={function (e) { updCpe(c.id, "urgency", e.target.value); }} style={Object.assign({}, selS, { fontSize: 9, color: uc })}>{["low", "medium", "high", "critical"].map(function (o) { return <option key={o} value={o}>{o}</option>; })}</select>
+            <button onClick={function () { setCpe(cpe.filter(function (x) { return x.id !== c.id; })); }} style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 10 }}>✕</button>
           </div>);
         })}
+        {renderSectionNote("lifecycle-facts", "Note on lifecycle risk...")}
       </div>
       {/* Discussion */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
@@ -333,18 +389,12 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
         <div style={{ fontFamily: T.m, fontSize: 9, color: T.amber, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>DECISIONS & OPEN ITEMS</div>
         <Decision question="Branch CPE approach?" options={["Refresh All", "Refresh EOL Only", "Phased by Region", "Evaluate"]} selected={d4} onSelect={setD4} color={T.blue} />
+        {renderSectionNote("lifecycle-decisions", "Note on refresh approach...")}
       </div>
       {/* Opportunity */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
         <div style={{ fontFamily: T.m, fontSize: 9, color: T.violet, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>OPPORTUNITY SIGNALS</div>
-        {[
-          "Pinnacle CPE refresh — 38 EOL Cisco ASAs, natural modernization wedge",
-          "Lifecycle support — standardize under managed lifecycle governance",
-          "Wi-Fi refresh — 340 aging APs across all sites, Wi-Fi 6E opportunity",
-          "Branch modernization bundle — CPE + SD-WAN + monitoring in one motion",
-        ].map(function (s, i) {
-          return <div key={i} style={{ fontFamily: T.f, fontSize: 11, color: T.tp, padding: "6px 0", borderBottom: i < 3 ? "1px solid " + T.border : "none" }}>● {s}</div>;
-        })}
+        {renderSignals("lifecycle")}
       </div>
     </div>);
   }
@@ -370,18 +420,12 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
         <Decision question="Migration approach?" options={["Phased by Region", "Big Bang", "Pilot-Then-Expand", "Evaluate"]} selected={d2} onSelect={setD2} color={T.blue} />
         <div style={{ borderTop: "1px solid " + T.border, marginTop: 4 }} />
         <Decision question="Branch standardization?" options={["Full Standard", "Tiered by Class", "Exception-Based", "Evaluate"]} selected={d3} onSelect={setD3} color={T.blue} />
+        {renderSectionNote("strategy-decisions", "Note on strategy decisions...")}
       </div>
       {/* Opportunity */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
         <div style={{ fontFamily: T.m, fontSize: 9, color: T.violet, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>OPPORTUNITY SIGNALS</div>
-        {[
-          "Phased SD-WAN — pilot proven, expand NE → SE → all regions",
-          "Managed services wrapper — support simplification across full estate",
-          "Provider consolidation — reduce from 6 to 1-2, simplify commercial",
-          "Acquired entity fast-track — Pinnacle + NorthStar integration as early wins",
-        ].map(function (s, i) {
-          return <div key={i} style={{ fontFamily: T.f, fontSize: 11, color: T.tp, padding: "6px 0", borderBottom: i < 3 ? "1px solid " + T.border : "none" }}>● {s}</div>;
-        })}
+        {renderSignals("strategy")}
       </div>
     </div>);
   }
@@ -391,7 +435,10 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
     return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       {/* Solution Mapping */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
-        <div style={{ fontFamily: T.m, fontSize: 9, color: T.blue, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>GTT SOLUTION MAPPING</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <div style={{ fontFamily: T.m, fontSize: 9, color: T.blue, letterSpacing: 1.2, textTransform: "uppercase" }}>GTT SOLUTION MAPPING</div>
+          <button onClick={function () { setSolutions(solutions.concat([{ id: Date.now(), issue: "", solution: "Managed SD-WAN", confidence: "Medium", note: "" }])); }} style={{ fontFamily: T.f, fontSize: 9, color: T.blue, background: "none", border: "1px dashed " + T.blue + "44", borderRadius: 4, padding: "3px 8px", cursor: "pointer" }}>+ Add Mapping</button>
+        </div>
         {solutions.map(function (s, i) {
           var cc = s.confidence === "High" ? T.green : s.confidence === "Medium" ? T.amber : T.red;
           var isExp = expSol === s.id;
@@ -399,16 +446,19 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
             <div onClick={function () { setExpSol(isExp ? null : s.id); }} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 0", cursor: "pointer" }}>
               <span style={{ fontSize: 9, color: T.td, transform: isExp ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.15s" }}>▶</span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{s.issue}</div>
+                <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{s.issue || "(click to edit)"}</div>
               </div>
               <span style={{ fontFamily: T.m, fontSize: 9, color: T.teal, background: T.teal + "12", padding: "2px 6px", borderRadius: 3, flexShrink: 0 }}>{s.solution}</span>
               <span style={{ fontFamily: T.m, fontSize: 8, color: cc, background: cc + "12", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase", flexShrink: 0 }}>{s.confidence}</span>
             </div>
-            {isExp && (<div style={{ padding: "0 0 10px 17px" }}>
-              <div style={{ fontFamily: T.f, fontSize: 11, color: T.ts, lineHeight: 1.5, marginBottom: 6 }}>{s.note}</div>
-              <select value={s.confidence} onChange={function (e) { setSolutions(solutions.map(function (x) { return x.id === s.id ? Object.assign({}, x, { confidence: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 9 })}>
-                {["High", "Medium", "Low"].map(function (o) { return <option key={o} value={o}>{o}</option>; })}
-              </select>
+            {isExp && (<div style={{ padding: "0 0 10px 17px", display: "flex", flexDirection: "column", gap: 6 }}>
+              <input value={s.issue} onChange={function (e) { updSol(s.id, "issue", e.target.value); }} placeholder="Issue / requirement..." style={Object.assign({}, iS, { fontSize: 11 })} />
+              <div style={{ display: "flex", gap: 6 }}>
+                <select value={s.solution} onChange={function (e) { updSol(s.id, "solution", e.target.value); }} style={Object.assign({}, selS, { fontSize: 10, flex: 1 })}>{GTT_SOLUTIONS.map(function (o) { return <option key={o} value={o}>{o}</option>; })}</select>
+                <select value={s.confidence} onChange={function (e) { updSol(s.id, "confidence", e.target.value); }} style={Object.assign({}, selS, { fontSize: 10 })}>{["High", "Medium", "Low"].map(function (o) { return <option key={o} value={o}>{o}</option>; })}</select>
+              </div>
+              <input value={s.note} onChange={function (e) { updSol(s.id, "note", e.target.value); }} placeholder="Value note..." style={Object.assign({}, iS, { fontSize: 11, color: T.ts })} />
+              <button onClick={function () { setSolutions(solutions.filter(function (x) { return x.id !== s.id; })); setExpSol(null); }} style={{ fontFamily: T.f, fontSize: 9, color: T.red, background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: 0 }}>Remove mapping</button>
             </div>)}
           </div>);
         })}
@@ -418,22 +468,19 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
         <div style={{ fontFamily: T.m, fontSize: 9, color: T.green, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>DISCUSSION</div>
         {renderNotes()}
       </div>
-      {/* Opportunity Development */}
+      {/* Opportunity Themes (editable) */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
-        <div style={{ fontFamily: T.m, fontSize: 9, color: T.violet, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>OPPORTUNITY THEMES</div>
-        {[
-          { theme: "MPLS rationalization + Managed SD-WAN", phase: "Phase 1", confidence: "High" },
-          { theme: "Branch resiliency uplift + LTE backup", phase: "Phase 1", confidence: "High" },
-          { theme: "Pinnacle CPE refresh + lifecycle support", phase: "Phase 1", confidence: "High" },
-          { theme: "Monitoring consolidation + EnvisionDX", phase: "Phase 2", confidence: "Medium" },
-          { theme: "Managed network services + 24x7 support", phase: "Phase 2", confidence: "Medium" },
-          { theme: "NorthStar greenfield + SD-WAN deploy", phase: "Phase 2", confidence: "Medium" },
-        ].map(function (o, i) {
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <div style={{ fontFamily: T.m, fontSize: 9, color: T.violet, letterSpacing: 1.2, textTransform: "uppercase" }}>OPPORTUNITY THEMES</div>
+          <button onClick={function () { setThemes(themes.concat([{ id: Date.now(), theme: "", phase: "Phase 1", confidence: "Medium" }])); }} style={{ fontFamily: T.f, fontSize: 9, color: T.violet, background: "none", border: "1px dashed " + T.violet + "44", borderRadius: 4, padding: "3px 8px", cursor: "pointer" }}>+ Add Theme</button>
+        </div>
+        {themes.map(function (o, i) {
           var cc = o.confidence === "High" ? T.green : T.amber;
-          return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: i < 5 ? "1px solid " + T.border : "none" }}>
-            <span style={{ fontFamily: T.f, fontSize: 11, color: T.tp, flex: 1 }}>{o.theme}</span>
-            <span style={{ fontFamily: T.m, fontSize: 9, color: T.blue, background: T.blue + "10", padding: "1px 6px", borderRadius: 3 }}>{o.phase}</span>
-            <span style={{ fontFamily: T.m, fontSize: 8, color: cc, background: cc + "12", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase" }}>{o.confidence}</span>
+          return (<div key={o.id} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 0", borderBottom: i < themes.length - 1 ? "1px solid " + T.border : "none" }}>
+            <input value={o.theme} onChange={function (e) { updTheme(o.id, "theme", e.target.value); }} placeholder="Opportunity theme..." style={Object.assign({}, smI, { flex: 1, fontSize: 10 })} />
+            <select value={o.phase} onChange={function (e) { updTheme(o.id, "phase", e.target.value); }} style={Object.assign({}, selS, { fontSize: 9 })}>{["Phase 1", "Phase 2", "Phase 3", "Future"].map(function (p) { return <option key={p} value={p}>{p}</option>; })}</select>
+            <select value={o.confidence} onChange={function (e) { updTheme(o.id, "confidence", e.target.value); }} style={Object.assign({}, selS, { fontSize: 9 })}>{["High", "Medium", "Low"].map(function (p) { return <option key={p} value={p}>{p}</option>; })}</select>
+            <button onClick={function () { setThemes(themes.filter(function (x) { return x.id !== o.id; })); }} style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 10 }}>✕</button>
           </div>);
         })}
       </div>
