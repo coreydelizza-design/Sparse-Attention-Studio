@@ -1,0 +1,22 @@
+{
+  "name": "gtt-network-transformation-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "GTT Network Transformation Studio — Enterprise workshop workspace",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.0"
+  }
+}
