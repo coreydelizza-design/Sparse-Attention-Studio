@@ -30,12 +30,24 @@ function ExecView({ onNav }) {
 
   /* ── Success Definition ── */
   var _suc = useState([
-    { id: 1, label: "Reduce network complexity and vendor sprawl", confirmed: true, notes: "" },
-    { id: 2, label: "Improve security posture to meet board mandate", confirmed: true, notes: "FY27 zero trust requirement" },
-    { id: 3, label: "Standardize branch infrastructure across all sites", confirmed: false, notes: "" },
-    { id: 4, label: "Accelerate cloud migration with direct connectivity", confirmed: true, notes: "" },
-    { id: 5, label: "Integrate acquisitions onto unified platform", confirmed: true, notes: "Pinnacle + NorthStar" },
-    { id: 6, label: "Reduce site deployment time from 90 days to under 10", confirmed: false, notes: "" },
+    { id: 1, label: "Reduce network complexity and vendor sprawl", confirmed: true },
+    { id: 2, label: "Improve security posture and compliance readiness", confirmed: true },
+    { id: 3, label: "Standardize branch infrastructure across all sites", confirmed: false },
+    { id: 4, label: "Accelerate cloud migration with direct connectivity", confirmed: true },
+    { id: 5, label: "Integrate acquisitions onto unified platform", confirmed: true },
+    { id: 6, label: "Reduce site deployment time", confirmed: false },
+    { id: 7, label: "Improve application performance and user experience", confirmed: false },
+    { id: 8, label: "Increase network uptime and resilience", confirmed: false },
+    { id: 9, label: "Enable secure remote and hybrid work", confirmed: false },
+    { id: 10, label: "Achieve full operational visibility across all sites", confirmed: false },
+    { id: 11, label: "Reduce total cost of ownership", confirmed: true },
+    { id: 12, label: "Simplify IT operations and reduce manual effort", confirmed: false },
+    { id: 13, label: "Support business growth without infrastructure bottlenecks", confirmed: false },
+    { id: 14, label: "Consolidate security tooling and reduce vendor sprawl", confirmed: false },
+    { id: 15, label: "Establish scalable architecture for future M&A", confirmed: false },
+    { id: 16, label: "Improve disaster recovery and business continuity", confirmed: false },
+    { id: 17, label: "Enable AI and automation readiness", confirmed: false },
+    { id: 18, label: "Achieve regulatory and audit compliance", confirmed: false },
   ]); var success = _suc[0]; var setSuccess = _suc[1];
 
   /* ── Business Drivers ── */
@@ -202,10 +214,7 @@ function ExecView({ onNav }) {
               <div onClick={function () { setSuccess(updArr(success, s.id, "confirmed", !s.confirmed)); }} style={{ width: 16, height: 16, borderRadius: 3, border: "2px solid " + (s.confirmed ? T.green : T.border), background: s.confirmed ? T.green + "15" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1, cursor: "pointer" }}>
                 {s.confirmed && <span style={{ color: T.green, fontSize: 10, fontWeight: 700 }}>✓</span>}
               </div>
-              <div style={{ flex: 1 }}>
-                <span style={{ fontFamily: T.f, fontSize: 11, color: T.tp }}>{s.label}</span>
-                {s.notes && <span style={{ fontFamily: T.f, fontSize: 10, color: T.td, marginLeft: 6 }}>— {s.notes}</span>}
-              </div>
+              <span style={{ fontFamily: T.f, fontSize: 11, color: T.tp }}>{s.label}</span>
             </div>);
           })}
         </div>
