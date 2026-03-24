@@ -164,24 +164,33 @@ function FootprintView({ onNav }) {
       </div>
 
       {/* Baseline Integrity */}
-      <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "14px 16px", width: 210 }}>
+      <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "14px 16px", width: isPrep ? 280 : 210 }}>
         <div style={{ fontFamily: T.m, fontSize: 9, color: T.teal, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>BASELINE INTEGRITY</div>
-        {[
-          { k: "Prepared By", v: integrity.preparedBy },
-          { k: "Last Updated", v: integrity.lastUpdated },
-          { k: "Data Confidence", v: integrity.confidence },
-          { k: "Completeness", v: integrity.completeness + "%" },
-          { k: "Pending Items", v: integrity.pendingItems },
-        ].map(function (r) {
-          var isConf = r.k === "Data Confidence";
-          return (<div key={r.k} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}>
-            <span style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>{r.k}</span>
-            <span style={{ fontFamily: T.m, fontSize: 9, fontWeight: 600, color: isConf ? confColor(r.v) : T.tp }}>{r.v}</span>
-          </div>);
-        })}
-        <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid " + T.border }}>
-          <div style={{ fontFamily: T.f, fontSize: 8, color: T.td }}>Sources: {integrity.sources}</div>
-        </div>
+        {isPrep ? (<div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div><label style={lbl}>Prepared By</label><input value={integrity.preparedBy} onChange={function (e) { setIntegrity(Object.assign({}, integrity, { preparedBy: e.target.value })); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10 })} /></div>
+          <div><label style={lbl}>Last Updated</label><input type="date" value={integrity.lastUpdated} onChange={function (e) { setIntegrity(Object.assign({}, integrity, { lastUpdated: e.target.value })); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10 })} /></div>
+          <div><label style={lbl}>Data Confidence</label><select value={integrity.confidence} onChange={function (e) { setIntegrity(Object.assign({}, integrity, { confidence: e.target.value })); }} style={Object.assign({}, selS, { width: "100%", fontSize: 10 })}>{["High", "Medium", "Low"].map(function (o) { return <option key={o} value={o}>{o}</option>; })}</select></div>
+          <div><label style={lbl}>Completeness %</label><input type="number" min={0} max={100} value={integrity.completeness} onChange={function (e) { setIntegrity(Object.assign({}, integrity, { completeness: Math.min(100, Math.max(0, Number(e.target.value) || 0)) })); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10, textAlign: "center" })} /></div>
+          <div><label style={lbl}>Pending Validation Items</label><input type="number" min={0} value={integrity.pendingItems} onChange={function (e) { setIntegrity(Object.assign({}, integrity, { pendingItems: Math.max(0, Number(e.target.value) || 0) })); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10, textAlign: "center" })} /></div>
+          <div><label style={lbl}>Source Systems</label><input value={integrity.sources} onChange={function (e) { setIntegrity(Object.assign({}, integrity, { sources: e.target.value })); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10 })} /></div>
+        </div>) : (<>
+          {[
+            { k: "Prepared By", v: integrity.preparedBy },
+            { k: "Last Updated", v: integrity.lastUpdated },
+            { k: "Data Confidence", v: integrity.confidence },
+            { k: "Completeness", v: integrity.completeness + "%" },
+            { k: "Pending Items", v: integrity.pendingItems },
+          ].map(function (r) {
+            var isConf = r.k === "Data Confidence";
+            return (<div key={r.k} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}>
+              <span style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>{r.k}</span>
+              <span style={{ fontFamily: T.m, fontSize: 9, fontWeight: 600, color: isConf ? confColor(r.v) : T.tp }}>{r.v}</span>
+            </div>);
+          })}
+          <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid " + T.border }}>
+            <div style={{ fontFamily: T.f, fontSize: 8, color: T.td }}>Sources: {integrity.sources}</div>
+          </div>
+        </>)}
       </div>
     </div>
 
