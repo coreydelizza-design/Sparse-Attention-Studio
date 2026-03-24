@@ -553,22 +553,19 @@ function ExecView({ onNav }) {
             {["Financial Services — Insurance & Wealth Management", "Financial Services — Banking", "Financial Services — Capital Markets", "Healthcare — Provider", "Healthcare — Payer", "Healthcare — Life Sciences", "Manufacturing — Discrete", "Manufacturing — Process", "Manufacturing — Industrial", "Retail — Brick & Mortar", "Retail — E-Commerce", "Retail — Omnichannel", "Technology — Software", "Technology — Hardware", "Technology — Services", "Telecommunications", "Energy — Oil & Gas", "Energy — Utilities", "Energy — Renewables", "Transportation & Logistics", "Hospitality & Travel", "Media & Entertainment", "Education — Higher Ed", "Education — K-12", "Legal & Professional Services", "Real Estate & Construction", "Pharmaceuticals & Biotech", "Automotive", "Aerospace & Defense", "Federal Government", "State Government", "Local Government", "Non-Profit & NGO", "Other"].map(function (ind) { return <option key={ind} value={ind}>{ind}</option>; })}
           </select>
         </div>
-        {[
-          { key: "footprint", label: "Operating Footprint" },
-          { key: "posture", label: "Strategic Posture" },
-        ].map(function (f) {
-          return (<div key={f.key} style={{ marginBottom: 8 }}>
-            <label style={lbl}>{f.label}</label>
-            <input value={ctx[f.key]} onChange={function (e) { updCtx(f.key, e.target.value); }} style={Object.assign({}, iS, { fontSize: 11 })} />
-          </div>);
-        })}
+        <div style={{ marginBottom: 8 }}>
+          <label style={lbl}>Operating Footprint</label>
+          <input value={ctx.footprint} onChange={function (e) { updCtx("footprint", e.target.value); }} style={Object.assign({}, iS, { fontSize: 11 })} />
+        </div>
+        <div style={{ marginBottom: 8 }}>
+          <label style={lbl}>Strategic Posture</label>
+          <select value={ctx.posture} onChange={function (e) { updCtx("posture", e.target.value); }} style={Object.assign({}, iS, { fontSize: 11, cursor: "pointer" })}>
+            {["Active transformation — executive-sponsored, funded, seeking implementation partner", "Exploring transformation — evaluating options, building business case", "Early discovery — identifying needs, no formal initiative yet", "Reactive — responding to specific event or contract deadline", "Optimization — current architecture works, seeking incremental improvement", "Consolidation — reducing vendors, simplifying existing environment", "M&A driven — integration mandate from acquisition activity", "Compliance driven — regulatory or audit requirement forcing change", "Renewal cycle — contract expiration driving reassessment", "Greenfield — new environment or subsidiary buildout", "Modernization — replacing legacy infrastructure end-of-life", "Cost reduction — budget pressure driving transformation", "Growth mode — scaling infrastructure to support expansion", "Stabilization — addressing reliability or performance issues first", "Other"].map(function (p) { return <option key={p} value={p}>{p}</option>; })}
+          </select>
+        </div>
         <div style={{ marginBottom: 8 }}>
           <label style={lbl}>Business Summary</label>
           <textarea value={ctx.summary} onChange={function (e) { updCtx("summary", e.target.value); }} rows={3} style={{ fontFamily: T.f, fontSize: 11, color: T.tp, border: "1px solid " + T.border, borderRadius: 6, padding: "8px 10px", background: "#fafbfc", boxSizing: "border-box", width: "100%", resize: "vertical", lineHeight: 1.5 }} />
-        </div>
-        <div style={{ marginBottom: 8 }}>
-          <label style={lbl}>Why Now</label>
-          <textarea value={ctx.whyNow} onChange={function (e) { updCtx("whyNow", e.target.value); }} rows={2} style={{ fontFamily: T.f, fontSize: 11, color: T.tp, border: "1px solid " + T.border, borderRadius: 6, padding: "8px 10px", background: "#fafbfc", boxSizing: "border-box", width: "100%", resize: "vertical", lineHeight: 1.5 }} />
         </div>
       </div>
 
@@ -619,6 +616,9 @@ function ExecView({ onNav }) {
         </div>
       </div>
     </div>
+
+    {/* Why Now — adjustable notes field */}
+    <Nts tag="WHY NOW" tc={T.amber} title="Transformation Context" sub="What is driving urgency — capture the business case for change" value={ctx.whyNow} onChange={function (v) { updCtx("whyNow", v); }} rows={3} />
 
     {/* ═══ ROW 2: Business Drivers ═══ */}
     <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, overflow: "hidden" }}>
