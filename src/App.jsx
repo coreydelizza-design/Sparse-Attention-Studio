@@ -463,7 +463,6 @@ function StakeholderView({ custAttendees, setCustAttendees, gttAttendees, setGtt
   const executiveCount = custAttendees.filter(function(a){ return a.role.indexOf("CTO")>=0||a.role.indexOf("CIO")>=0||a.role.indexOf("CISO")>=0||a.role.indexOf("VP")>=0; }).length;
   const technicalCount = custAttendees.filter(function(a){ return a.role.indexOf("Architect")>=0||a.role.indexOf("Engineer")>=0||a.role.indexOf("Manager")>=0; }).length;
   const mappedCount = stakeholderMap.filter(function(s){ return s.strength >= 50; }).length;
-
   const strengthColor = function(s) { return s >= 75 ? T.green : s >= 50 ? T.amber : T.red; };
 
   return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -510,42 +509,6 @@ function StakeholderView({ custAttendees, setCustAttendees, gttAttendees, setGtt
         })}
       </div>
     </PrimaryCard>
-
-    {/* Relationship Health */}
-    <Disc tag="RELATIONSHIP HEALTH" tagColor={T.green} title="Engagement strength & coverage" summary={mappedCount + " strong · " + (totalStakeholders - mappedCount) + " need attention"} defaultOpen={true}>
-      {stakeholderMap.map(function(s, i) {
-        return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: i < stakeholderMap.length - 1 ? "1px solid " + T.border : "none" }}>
-          <div style={{ width: 28, height: 28, borderRadius: 14, background: strengthColor(s.strength) + "15", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: T.f, fontSize: 10, fontWeight: 700, color: strengthColor(s.strength), flexShrink: 0 }}>{s.name.split(" ").map(function(n){return n[0];}).join("")}</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{s.name}</span>
-              <span style={{ fontFamily: T.m, fontSize: 9, color: strengthColor(s.strength), background: strengthColor(s.strength) + "12", padding: "1px 6px", borderRadius: 3 }}>{s.confidence}</span>
-            </div>
-            <div style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>{s.mapRole} · Last: {s.lastEngagement} · {s.frequency}</div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-            <div style={{ width: 60, height: 5, borderRadius: 3, background: T.border, overflow: "hidden" }}>
-              <div style={{ width: s.strength + "%", height: "100%", background: strengthColor(s.strength), borderRadius: 3 }} />
-            </div>
-            <span style={{ fontFamily: T.m, fontSize: 10, fontWeight: 600, color: strengthColor(s.strength), width: 28, textAlign: "right" }}>{s.strength}</span>
-          </div>
-          <div style={{ fontFamily: T.f, fontSize: 10, color: T.td, width: 100, flexShrink: 0, textAlign: "right" }}>{s.owner}</div>
-        </div>);
-      })}
-    </Disc>
-
-    {/* Coverage Gaps */}
-    <Disc tag="COVERAGE GAPS" tagColor={T.red} title="Missing stakeholders & access" summary={coverageGaps.length + " gaps identified — " + coverageGaps.filter(function(g){return g.severity==="critical";}).length + " critical"}>
-      {coverageGaps.map(function(g, i) {
-        return (<div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: i < coverageGaps.length - 1 ? "1px solid " + T.border : "none" }}>
-          <Sev s={g.severity} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{g.gap}</div>
-            <div style={{ fontFamily: T.f, fontSize: 11, color: T.td, marginTop: 2 }}>{g.detail}</div>
-          </div>
-        </div>);
-      })}
-    </Disc>
 
     {/* Recommended Actions */}
     <Disc tag="NEXT ACTIONS" tagColor={T.violet} title="Recommended stakeholder actions" summary={actions.length + " actions queued"}>
@@ -623,6 +586,19 @@ function StakeholderView({ custAttendees, setCustAttendees, gttAttendees, setGtt
         </div>
       </div>
     </div>
+
+    {/* Coverage Gaps */}
+    <Disc tag="COVERAGE GAPS" tagColor={T.red} title="Missing stakeholders & access" summary={coverageGaps.length + " gaps identified — " + coverageGaps.filter(function(g){return g.severity==="critical";}).length + " critical"}>
+      {coverageGaps.map(function(g, i) {
+        return (<div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: i < coverageGaps.length - 1 ? "1px solid " + T.border : "none" }}>
+          <Sev s={g.severity} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{g.gap}</div>
+            <div style={{ fontFamily: T.f, fontSize: 11, color: T.td, marginTop: 2 }}>{g.detail}</div>
+          </div>
+        </div>);
+      })}
+    </Disc>
   </div>);
 }
 
