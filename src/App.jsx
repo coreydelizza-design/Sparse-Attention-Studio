@@ -426,15 +426,16 @@ function ExecView({ onNav }) {
 
   /* ── Strategic Priorities ── */
   var _pri = useState([
-    { id: 1, label: "Cost Efficiency", weight: 9, confirmed: true },
-    { id: 2, label: "Security & Resilience", weight: 9, confirmed: true },
-    { id: 3, label: "Cloud Enablement", weight: 8, confirmed: true },
-    { id: 4, label: "Standardization", weight: 8, confirmed: false },
-    { id: 5, label: "M&A Integration", weight: 7, confirmed: true },
-    { id: 6, label: "Growth Scalability", weight: 6, confirmed: false },
-    { id: 7, label: "AI / Automation", weight: 5, confirmed: false },
-    { id: 8, label: "Customer Experience", weight: 4, confirmed: false },
+    { id: 1, label: "Cost Efficiency", score: 5, confirmed: true },
+    { id: 2, label: "Security & Resilience", score: 5, confirmed: true },
+    { id: 3, label: "Cloud Enablement", score: 4, confirmed: true },
+    { id: 4, label: "Standardization", score: 4, confirmed: false },
+    { id: 5, label: "M&A Integration", score: 4, confirmed: true },
+    { id: 6, label: "Growth Scalability", score: 3, confirmed: false },
+    { id: 7, label: "AI / Automation", score: 2, confirmed: false },
+    { id: 8, label: "Customer Experience", score: 2, confirmed: false },
   ]); var priorities = _pri[0]; var setPriorities = _pri[1];
+  var priLabels = ["", "Not a Priority", "Low Priority", "Moderate", "High Priority", "Critical"];
 
   /* ── Success Definition ── */
   var _suc = useState([
@@ -575,16 +576,27 @@ function ExecView({ onNav }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {/* Strategic Priorities */}
         <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
-          <span style={{ fontFamily: T.m, fontSize: 9, color: T.blue, background: T.blue + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>STRATEGIC PRIORITIES</span>
-          <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 6, marginBottom: 10 }}>Weighted business priorities</div>
-          {priorities.sort(function (a, b) { return b.weight - a.weight; }).map(function (p, i) {
-            return (<div key={p.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 0" }}>
-              <span style={{ fontFamily: T.f, fontSize: 11, color: T.tp, width: 130, flexShrink: 0 }}>{p.label}</span>
-              <div style={{ flex: 1, height: 8, background: T.border, borderRadius: 4, overflow: "hidden" }}>
-                <div style={{ width: (p.weight * 10) + "%", height: "100%", background: p.confirmed ? T.blue : T.blue + "55", borderRadius: 4 }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+            <div>
+              <span style={{ fontFamily: T.m, fontSize: 9, color: T.blue, background: T.blue + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>STRATEGIC PRIORITIES</span>
+              <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 6 }}>Business priority assessment</div>
+            </div>
+            <span style={{ fontFamily: T.f, fontSize: 16, fontWeight: 700, color: (priorities.reduce(function (a, p) { return a + p.score; }, 0) / priorities.length) >= 3.5 ? T.green : (priorities.reduce(function (a, p) { return a + p.score; }, 0) / priorities.length) >= 2.5 ? T.amber : T.red }}>{(priorities.reduce(function (a, p) { return a + p.score; }, 0) / priorities.length).toFixed(1)}</span>
+          </div>
+          {priorities.map(function (p, i) {
+            return (<div key={p.id} style={{ borderBottom: i < priorities.length - 1 ? "1px solid " + T.border : "none" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 0" }}>
+                <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontFamily: T.f, fontSize: 13, color: T.tp }}>{p.label}</span>
+                  <span style={{ fontFamily: T.m, fontSize: 8, color: p.confirmed ? T.green : T.td, background: (p.confirmed ? T.green : T.td) + "12", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase", cursor: "pointer" }} onClick={function () { setPriorities(updArr(priorities, p.id, "confirmed", !p.confirmed)); }}>{p.confirmed ? "Confirmed" : "Suggested"}</span>
+                </div>
+                <div style={{ display: "flex", gap: 3 }}>
+                  {[1, 2, 3, 4, 5].map(function (n) {
+                    return <button key={n} onClick={function () { setPriorities(updArr(priorities, p.id, "score", n)); }} style={{ width: 26, height: 26, borderRadius: 5, fontSize: 11, fontWeight: 600, fontFamily: T.f, cursor: "pointer", border: "1.5px solid " + (n <= p.score ? T.blue : T.border), background: n <= p.score ? T.blue + (n === p.score ? "20" : "10") : "transparent", color: n <= p.score ? T.blue : T.td }}>{n}</button>;
+                  })}
+                </div>
+                <span style={{ fontFamily: T.m, fontSize: 9, color: T.td, width: 75, textAlign: "right" }}>{priLabels[p.score]}</span>
               </div>
-              <input type="number" min={1} max={10} value={p.weight} onChange={function (e) { setPriorities(updArr(priorities, p.id, "weight", Math.min(10, Math.max(1, Number(e.target.value) || 1)))); }} style={Object.assign({}, smI, { width: 36, textAlign: "center", fontSize: 10 })} />
-              <span style={{ fontFamily: T.m, fontSize: 8, color: p.confirmed ? T.green : T.td, background: (p.confirmed ? T.green : T.td) + "12", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase", cursor: "pointer", whiteSpace: "nowrap" }} onClick={function () { setPriorities(updArr(priorities, p.id, "confirmed", !p.confirmed)); }}>{p.confirmed ? "Confirmed" : "Suggested"}</span>
             </div>);
           })}
         </div>
