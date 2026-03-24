@@ -159,6 +159,12 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
             return <button key={m} onClick={function () { setMgmt(m); }} style={{ fontFamily: T.f, fontSize: 10, padding: "4px 10px", borderRadius: 4, border: "1.5px solid " + (on ? T.blue : T.border), background: on ? T.blue + "12" : "transparent", color: on ? T.blue : T.td, cursor: "pointer", fontWeight: on ? 600 : 400 }}>{m}</button>;
           })}
         </div>
+
+        {/* Baseline Notes */}
+        <div style={{ marginTop: 4 }}>
+          <div style={{ fontFamily: T.f, fontSize: 9, color: T.td, marginBottom: 4 }}>Baseline Notes</div>
+          <textarea value={getSectionNote("wan-baseline")} onChange={function (e) { setSectionNote("wan-baseline", e.target.value); }} rows={2} placeholder="Capture WAN baseline context, observations, key facts..." style={{ fontFamily: T.f, fontSize: 11, color: T.tp, border: "1px solid " + T.border, borderRadius: 6, padding: "8px 10px", background: "#fafbfc", boxSizing: "border-box", width: "100%", resize: "vertical", lineHeight: 1.5 }} />
+        </div>
       </div>
 
       {/* Site Types */}
@@ -168,27 +174,36 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
           <button onClick={function () { setSites(sites.concat([{ id: Date.now(), region: "", type: "Branch", count: 0, states: "", circuit: "MPLS", bandwidth: "100 Mbps", provider: "", notes: "" }])); }} style={{ fontFamily: T.f, fontSize: 9, color: T.blue, background: "none", border: "1px dashed " + T.blue + "44", borderRadius: 4, padding: "3px 8px", cursor: "pointer" }}>+ Add</button>
         </div>
         {sites.map(function (s, i) {
-          return (<div key={s.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: i < sites.length - 1 ? "1px solid " + T.border : "none" }}>
-            <select value={s.type} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { type: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 10, fontWeight: 600 })}>{["Branch", "Acquired", "HQ / Campus", "Data Center", "DR Site", "Remote", "Retail", "Warehouse", "Contact Center"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
-            <input type="number" value={s.count} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { count: Number(e.target.value) || 0 }) : x; })); }} style={Object.assign({}, smI, { width: 56, textAlign: "center", fontSize: 12, fontWeight: 600, padding: "5px 6px" })} />
-            <select value={s.circuit} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { circuit: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 10 })}>{["MPLS", "DIA", "Broadband", "LTE/5G", "MPLS+DIA", "BB+LTE", "Metro Eth", "Fiber P2P", "None"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
-            <select value={s.bandwidth} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { bandwidth: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 10 })}>{["10 Mbps", "25 Mbps", "50 Mbps", "100 Mbps", "200 Mbps", "500 Mbps", "1 Gbps", "10 Gbps"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
-            <input value={s.region} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { region: e.target.value }) : x; })); }} placeholder="Label..." style={Object.assign({}, smI, { width: 90, fontSize: 10 })} />
-            <button onClick={function () { setSites(sites.filter(function (x) { return x.id !== s.id; })); }} style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 11 }}>✕</button>
+          return (<div key={s.id} style={{ padding: "8px 0", borderBottom: i < sites.length - 1 ? "1px solid " + T.border : "none" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <select value={s.type} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { type: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 10, fontWeight: 600 })}>{["Branch", "Acquired", "HQ / Campus", "Data Center", "DR Site", "Remote", "Retail", "Warehouse", "Contact Center"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
+              <input type="number" value={s.count} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { count: Number(e.target.value) || 0 }) : x; })); }} style={Object.assign({}, smI, { width: 56, textAlign: "center", fontSize: 12, fontWeight: 600, padding: "5px 6px" })} />
+              <select value={s.circuit} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { circuit: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 10 })}>{["MPLS", "DIA", "Broadband", "LTE/5G", "MPLS+DIA", "BB+LTE", "Metro Eth", "Fiber P2P", "None"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
+              <select value={s.bandwidth} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { bandwidth: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 10 })}>{["10 Mbps", "25 Mbps", "50 Mbps", "100 Mbps", "200 Mbps", "500 Mbps", "1 Gbps", "10 Gbps"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
+              <button onClick={function () { setSites(sites.filter(function (x) { return x.id !== s.id; })); }} style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 11 }}>✕</button>
+            </div>
+            <input value={s.notes || ""} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { notes: e.target.value }) : x; })); }} placeholder="Notes..." style={Object.assign({}, smI, { width: "100%", fontSize: 10, color: T.ts, marginTop: 4 })} />
           </div>);
         })}
       </div>
 
       {/* WAN Providers */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
-        <div style={{ fontFamily: T.m, fontSize: 9, color: T.amber, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>WAN PROVIDERS</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <div style={{ fontFamily: T.m, fontSize: 9, color: T.amber, letterSpacing: 1.2, textTransform: "uppercase" }}>WAN PROVIDERS</div>
+          <button onClick={function () { setProviders(providers.concat([{ id: Date.now(), name: "Select Provider", type: "MPLS", sites: 0, cost: "", expiry: "", action: "Evaluate" }])); }} style={{ fontFamily: T.f, fontSize: 9, color: T.amber, background: "none", border: "1px dashed " + T.amber + "44", borderRadius: 4, padding: "3px 8px", cursor: "pointer" }}>+ Add Provider</button>
+        </div>
         {providers.map(function (p, i) {
-          return (<div key={p.id} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 0", borderBottom: i < providers.length - 1 ? "1px solid " + T.border : "none" }}>
-            <span style={{ fontFamily: T.f, fontSize: 11, fontWeight: 600, color: T.tp, width: 70, flexShrink: 0 }}>{p.name}</span>
-            <span style={{ fontFamily: T.f, fontSize: 10, color: T.ts, flex: 1 }}>{p.type} · {p.sites} sites</span>
-            <span style={{ fontFamily: T.m, fontSize: 10, color: T.tp }}>{p.cost}</span>
-            <span style={{ fontFamily: T.f, fontSize: 9, color: T.td, width: 55 }}>{p.expiry}</span>
-            <select value={p.action} onChange={function (e) { setProviders(providers.map(function (x) { return x.id === p.id ? Object.assign({}, x, { action: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 9 })}>{["Retain", "Retain & Expand", "Non-Renew", "Early Terminate", "Evaluate"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
+          return (<div key={p.id} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 0", borderBottom: i < providers.length - 1 ? "1px solid " + T.border : "none" }}>
+            <select value={p.name} onChange={function (e) { setProviders(providers.map(function (x) { return x.id === p.id ? Object.assign({}, x, { name: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 10, fontWeight: 600, width: 120 })}>
+              {["Select Provider", "AT&T", "Verizon", "Lumen / CenturyLink", "Comcast", "Spectrum / Charter", "Cox", "Windstream", "Frontier", "Zayo", "Crown Castle", "Cogent", "GTT", "BT", "Vodafone", "Orange", "Deutsche Telekom / T-Systems", "Telia", "Colt", "NTT", "Singtel", "Telstra", "PCCW", "Tata Communications", "Reliance Jio", "América Móvil / Telmex", "Telefónica", "Liberty Latin America", "Millicom / Tigo", "T-Mobile", "Rogers", "Bell Canada", "Telus", "Shaw / Freedom", "Hughes", "Masergy / Comcast Business", "Aryaka", "Arelion", "euNetworks", "Console Connect / PCCW", "Megaport", "PacketFabric", "Equinix Fabric", "AWS Direct Connect", "Azure ExpressRoute", "Google Cloud Interconnect", "Other"].map(function (n) { return <option key={n} value={n}>{n}</option>; })}
+            </select>
+            <select value={p.type} onChange={function (e) { setProviders(providers.map(function (x) { return x.id === p.id ? Object.assign({}, x, { type: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 9 })}>{["MPLS", "DIA", "Broadband", "LTE/5G", "Backbone", "Cloud Interconnect", "Voice / SIP", "Mixed", "Other"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
+            <input type="number" value={p.sites} onChange={function (e) { setProviders(providers.map(function (x) { return x.id === p.id ? Object.assign({}, x, { sites: Number(e.target.value) || 0 }) : x; })); }} style={Object.assign({}, smI, { width: 44, textAlign: "center", fontSize: 10 })} />
+            <input value={p.cost} onChange={function (e) { setProviders(providers.map(function (x) { return x.id === p.id ? Object.assign({}, x, { cost: e.target.value }) : x; })); }} placeholder="Cost..." style={Object.assign({}, smI, { width: 70, fontSize: 10 })} />
+            <input value={p.expiry} onChange={function (e) { setProviders(providers.map(function (x) { return x.id === p.id ? Object.assign({}, x, { expiry: e.target.value }) : x; })); }} placeholder="Expiry..." style={Object.assign({}, smI, { width: 65, fontSize: 10 })} />
+            <select value={p.action} onChange={function (e) { setProviders(providers.map(function (x) { return x.id === p.id ? Object.assign({}, x, { action: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 9 })}>{["Retain", "Retain & Expand", "Non-Renew", "Early Terminate", "Renegotiate", "Evaluate"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
+            <button onClick={function () { setProviders(providers.filter(function (x) { return x.id !== p.id; })); }} style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 11 }}>✕</button>
           </div>);
         })}
       </div>
