@@ -125,7 +125,7 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
             { l: "Total Sites", v: totalSites },
             { l: "Regions", v: sites.length },
             { l: "WAN Providers", v: providers.length },
-            { l: "SD-WAN Sites", v: "8 pilot" },
+            { l: "SD-WAN Overlay", v: sdwan },
           ].map(function (f) {
             return <div key={f.l}><div style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>{f.l}</div><div style={{ fontFamily: T.f, fontSize: 18, fontWeight: 700, color: T.tp }}>{f.v}</div></div>;
           })}
@@ -206,7 +206,7 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
         <div style={{ display: "flex", alignItems: "center", gap: 6, paddingBottom: 6, borderBottom: "2px solid " + T.border, marginBottom: 4 }}>
           <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8, width: 120 }}>Provider</span>
           <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8 }}>Type</span>
-          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8, width: 44, textAlign: "center" }}>Sites</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8, width: 44, textAlign: "center" }}>Circuits</span>
           <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8, width: 70 }}>Cost</span>
           <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8, width: 65 }}>Expiry</span>
           <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8 }}>Action</span>
