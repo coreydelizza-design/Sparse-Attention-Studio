@@ -393,33 +393,12 @@ function StakeholderView({ custAttendees, setCustAttendees, gttAttendees, setGtt
   const _sc = useState(false); const showCust = _sc[0]; const setShowCust = _sc[1];
   const _sg = useState(false); const showGtt = _sg[0]; const setShowGtt = _sg[1];
 
-  /* Stakeholder mapping data */
-  const stakeholderMap = [
-    { name: "Sarah Chen", role: "CTO", mapRole: "Executive Sponsor", strength: 92, lastEngagement: "2 days ago", frequency: "Weekly", owner: "Michael Barrett", confidence: "High" },
-    { name: "Marcus Williams", role: "VP of Network Engineering", mapRole: "Technical Buyer", strength: 85, lastEngagement: "Today", frequency: "Bi-weekly", owner: "Karen Nguyen", confidence: "High" },
-    { name: "Jennifer Park", role: "Director of IT Security", mapRole: "Champion", strength: 78, lastEngagement: "1 week ago", frequency: "Monthly", owner: "Tom Bradley", confidence: "Medium" },
-    { name: "David Rodriguez", role: "Sr. Network Architect", mapRole: "Influencer", strength: 70, lastEngagement: "Today", frequency: "Weekly", owner: "Karen Nguyen", confidence: "High" },
-    { name: "Lisa Thompson", role: "Network Engineering Manager", mapRole: "Implementation Lead", strength: 65, lastEngagement: "3 days ago", frequency: "Bi-weekly", owner: "Steve Morrison", confidence: "Medium" },
-    { name: "James Kim", role: "Sr. Cloud Architect", mapRole: "Influencer", strength: 40, lastEngagement: "3 weeks ago", frequency: "Rarely", owner: "Rachel Patel", confidence: "Low" },
-    { name: "Robert Chen", role: "IT Procurement", mapRole: "Procurement", strength: 30, lastEngagement: "1 month ago", frequency: "Rarely", owner: "Michael Barrett", confidence: "Low" },
-    { name: "Amanda Foster", role: "Network Engineer", mapRole: "Influencer", strength: 55, lastEngagement: "Today", frequency: "Weekly", owner: "Karen Nguyen", confidence: "Medium" },
-  ];
-
   const coverageGaps = [
     { gap: "No CISO identified", severity: "critical", detail: "Security transformation requires executive security sponsor" },
     { gap: "No CFO / Finance contact", severity: "high", detail: "Business case approval needs finance stakeholder" },
     { gap: "No Legal / Compliance lead", severity: "high", detail: "Contract renegotiation requires legal review" },
     { gap: "Cloud owner access limited", severity: "medium", detail: "James Kim remote-only, 3-week engagement gap" },
     { gap: "No NOC / Operations contact", severity: "medium", detail: "Day-2 operations handoff undefined" },
-  ];
-
-  const actions = [
-    { action: "Schedule executive alignment with CTO + CFO", priority: "Critical", owner: "Michael Barrett", due: "This week" },
-    { action: "Identify CISO or security executive sponsor", priority: "Critical", owner: "Michael Barrett", due: "Before Phase 4" },
-    { action: "Strengthen James Kim engagement (cloud)", priority: "High", owner: "Rachel Patel", due: "Next 2 weeks" },
-    { action: "Add procurement contact to buying committee", priority: "High", owner: "Michael Barrett", due: "Next 2 weeks" },
-    { action: "Map NOC / operations stakeholders", priority: "Medium", owner: "Steve Morrison", due: "Phase 2" },
-    { action: "Confirm Jennifer Park as security champion", priority: "Medium", owner: "Tom Bradley", due: "This week" },
   ];
 
   function addCust() {
@@ -462,8 +441,6 @@ function StakeholderView({ custAttendees, setCustAttendees, gttAttendees, setGtt
   const totalStakeholders = custAttendees.length;
   const executiveCount = custAttendees.filter(function(a){ return a.role.indexOf("CTO")>=0||a.role.indexOf("CIO")>=0||a.role.indexOf("CISO")>=0||a.role.indexOf("VP")>=0; }).length;
   const technicalCount = custAttendees.filter(function(a){ return a.role.indexOf("Architect")>=0||a.role.indexOf("Engineer")>=0||a.role.indexOf("Manager")>=0; }).length;
-  const mappedCount = stakeholderMap.filter(function(s){ return s.strength >= 50; }).length;
-  const strengthColor = function(s) { return s >= 75 ? T.green : s >= 50 ? T.amber : T.red; };
 
   return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
     <SecHead s={SECS.find(function(x){return x.id==="stakeholder";})} />
@@ -474,7 +451,7 @@ function StakeholderView({ custAttendees, setCustAttendees, gttAttendees, setGtt
         { label: "Total Stakeholders", value: totalStakeholders, sub: custPresent + " present", color: T.cyan },
         { label: "Executive", value: executiveCount, sub: "CxO / VP level", color: T.green },
         { label: "Technical", value: technicalCount, sub: "Architects & Engineers", color: T.blue },
-        { label: "Mapped", value: mappedCount + "/" + totalStakeholders, sub: (totalStakeholders - mappedCount) + " need attention", color: T.amber },
+        { label: "Gaps", value: coverageGaps.length, sub: coverageGaps.filter(function(g){return g.severity==="critical";}).length + " critical", color: T.red },
       ].map(function(c) {
         return (<div key={c.label} style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "14px 16px" }}>
           <div style={{ fontFamily: T.m, fontSize: 9, color: c.color, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 6 }}>{c.label}</div>
@@ -483,46 +460,6 @@ function StakeholderView({ custAttendees, setCustAttendees, gttAttendees, setGtt
         </div>);
       })}
     </div>
-
-    {/* Stakeholder Map — grouped by role */}
-    <PrimaryCard tag="STAKEHOLDER MAP" tagColor={T.cyan} title="Influence & role mapping">
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        {["Executive Sponsor", "Technical Buyer", "Champion", "Influencer", "Implementation Lead", "Procurement"].map(function(mapRole) {
-          const members = stakeholderMap.filter(function(s){ return s.mapRole === mapRole; });
-          if (!members.length) return null;
-          var roleColor = mapRole === "Executive Sponsor" ? T.green : mapRole === "Technical Buyer" ? T.blue : mapRole === "Champion" ? T.violet : mapRole === "Procurement" ? T.amber : T.cyan;
-          return (<div key={mapRole} style={{ background: roleColor + "04", borderRadius: 8, border: "1px solid " + roleColor + "15", padding: "12px 14px" }}>
-            <div style={{ fontFamily: T.m, fontSize: 9, color: roleColor, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>{mapRole}</div>
-            {members.map(function(m, i) {
-              return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: i < members.length - 1 ? "1px solid " + roleColor + "12" : "none" }}>
-                <div style={{ width: 28, height: 28, borderRadius: 14, background: roleColor + "15", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: T.f, fontSize: 10, fontWeight: 700, color: roleColor, flexShrink: 0 }}>{m.name.split(" ").map(function(n){return n[0];}).join("")}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{m.name}</div>
-                  <div style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>{m.role}</div>
-                </div>
-                <div style={{ width: 32, height: 4, borderRadius: 2, background: T.border, overflow: "hidden", flexShrink: 0 }}>
-                  <div style={{ width: m.strength + "%", height: "100%", background: strengthColor(m.strength), borderRadius: 2 }} />
-                </div>
-              </div>);
-            })}
-          </div>);
-        })}
-      </div>
-    </PrimaryCard>
-
-    {/* Recommended Actions */}
-    <Disc tag="NEXT ACTIONS" tagColor={T.violet} title="Recommended stakeholder actions" summary={actions.length + " actions queued"}>
-      {actions.map(function(a, i) {
-        var pc = a.priority === "Critical" ? T.red : a.priority === "High" ? T.amber : T.blue;
-        return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0", borderBottom: i < actions.length - 1 ? "1px solid " + T.border : "none" }}>
-          <span style={{ fontFamily: T.m, fontSize: 9, color: pc, background: pc + "12", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase", flexShrink: 0 }}>{a.priority}</span>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: T.f, fontSize: 12, color: T.tp }}>{a.action}</div>
-            <div style={{ fontFamily: T.f, fontSize: 10, color: T.td, marginTop: 1 }}>{a.owner} · {a.due}</div>
-          </div>
-        </div>);
-      })}
-    </Disc>
 
     {/* Session Notes */}
     <Nts tag="SESSION NOTES" tc={T.cyan} title="Workshop Logistics & Notes" sub="Agenda, schedule, logistics, key stakeholder availability" value={wkNotes} onChange={setWkNotes} rows={5} />
