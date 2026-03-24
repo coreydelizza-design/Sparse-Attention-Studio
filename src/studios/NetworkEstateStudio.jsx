@@ -31,7 +31,8 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
   var _tab = useState("baseline"); var tab = _tab[0]; var setTab = _tab[1];
 
   /* ═══════ BASELINE STATE ═══════ */
-  var _wanTypes = useState({ MPLS: true, DIA: true, Broadband: true, "LTE/5G": true, "SD-WAN": false }); var wanTypes = _wanTypes[0]; var setWanTypes = _wanTypes[1];
+  var _wanTypes = useState({ MPLS: true, DIA: true, Broadband: true, "LTE/5G": true }); var wanTypes = _wanTypes[0]; var setWanTypes = _wanTypes[1];
+  var _sdwan = useState("Pilot"); var sdwan = _sdwan[0]; var setSdwan = _sdwan[1];
   var _topo = useState("Hub-Spoke"); var topo = _topo[0]; var setTopo = _topo[1];
   var _mgmt = useState("Customer Managed"); var mgmt = _mgmt[0]; var setMgmt = _mgmt[1];
   var _resiliency = useState([
@@ -143,6 +144,14 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
           })}
         </div>
 
+        <div style={{ fontFamily: T.f, fontSize: 9, color: T.td, marginBottom: 4 }}>SD-WAN Overlay</div>
+        <div style={{ display: "flex", gap: 4, marginBottom: 12 }}>
+          {["No", "Pilot", "Partial", "Full"].map(function (o) {
+            var on = sdwan === o;
+            return <button key={o} onClick={function () { setSdwan(o); }} style={{ fontFamily: T.f, fontSize: 10, padding: "4px 10px", borderRadius: 4, border: "1.5px solid " + (on ? T.cyan : T.border), background: on ? T.cyan + "12" : "transparent", color: on ? T.cyan : T.td, cursor: "pointer", fontWeight: on ? 600 : 400 }}>{o}</button>;
+          })}
+        </div>
+
         <div style={{ fontFamily: T.f, fontSize: 9, color: T.td, marginBottom: 4 }}>WAN Management</div>
         <div style={{ display: "flex", gap: 4, marginBottom: 12 }}>
           {["Customer Managed", "Provider Managed", "Co-Managed", "GTT Managed"].map(function (m) {
@@ -152,19 +161,19 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
         </div>
       </div>
 
-      {/* Site Inventory (compact) */}
+      {/* Site Types */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-          <div style={{ fontFamily: T.m, fontSize: 9, color: T.blue, letterSpacing: 1.2, textTransform: "uppercase" }}>SITES & REGIONS</div>
-          <button onClick={function () { setSites(sites.concat([{ id: Date.now(), region: "New Region", type: "Branch", count: 0, states: "", circuit: "MPLS", bandwidth: "100 Mbps", provider: "", notes: "" }])); }} style={{ fontFamily: T.f, fontSize: 9, color: T.blue, background: "none", border: "1px dashed " + T.blue + "44", borderRadius: 4, padding: "3px 8px", cursor: "pointer" }}>+ Add</button>
+          <div style={{ fontFamily: T.m, fontSize: 9, color: T.blue, letterSpacing: 1.2, textTransform: "uppercase" }}>SITE TYPES</div>
+          <button onClick={function () { setSites(sites.concat([{ id: Date.now(), region: "", type: "Branch", count: 0, states: "", circuit: "MPLS", bandwidth: "100 Mbps", provider: "", notes: "" }])); }} style={{ fontFamily: T.f, fontSize: 9, color: T.blue, background: "none", border: "1px dashed " + T.blue + "44", borderRadius: 4, padding: "3px 8px", cursor: "pointer" }}>+ Add</button>
         </div>
         {sites.map(function (s, i) {
           return (<div key={s.id} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 0", borderBottom: i < sites.length - 1 ? "1px solid " + T.border : "none" }}>
-            <span style={{ fontFamily: T.f, fontSize: 11, fontWeight: 600, color: T.tp, width: 100, flexShrink: 0 }}>{s.region}</span>
-            <select value={s.type} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { type: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 9 })}>{["Branch", "Acquired", "HQ / Campus", "Data Center", "DR Site", "Remote"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
+            <select value={s.type} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { type: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 9, fontWeight: 600 })}>{["Branch", "Acquired", "HQ / Campus", "Data Center", "DR Site", "Remote", "Retail", "Warehouse", "Contact Center"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
             <input type="number" value={s.count} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { count: Number(e.target.value) || 0 }) : x; })); }} style={Object.assign({}, smI, { width: 40, textAlign: "center", fontSize: 10 })} />
-            <select value={s.circuit} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { circuit: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 9 })}>{["MPLS", "DIA", "Broadband", "LTE/5G", "MPLS+DIA", "BB+LTE", "SD-WAN", "None"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
+            <select value={s.circuit} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { circuit: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 9 })}>{["MPLS", "DIA", "Broadband", "LTE/5G", "MPLS+DIA", "BB+LTE", "Metro Eth", "Fiber P2P", "None"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
             <select value={s.bandwidth} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { bandwidth: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 9 })}>{["10 Mbps", "25 Mbps", "50 Mbps", "100 Mbps", "200 Mbps", "500 Mbps", "1 Gbps", "10 Gbps"].map(function (o) { return <option key={o}>{o}</option>; })}</select>
+            <input value={s.region} onChange={function (e) { setSites(sites.map(function (x) { return x.id === s.id ? Object.assign({}, x, { region: e.target.value }) : x; })); }} placeholder="Label..." style={Object.assign({}, smI, { width: 80, fontSize: 9 })} />
             <button onClick={function () { setSites(sites.filter(function (x) { return x.id !== s.id; })); }} style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 10 }}>✕</button>
           </div>);
         })}
