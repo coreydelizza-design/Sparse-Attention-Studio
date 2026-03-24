@@ -35,6 +35,9 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
   var _sdwan = useState("Pilot"); var sdwan = _sdwan[0]; var setSdwan = _sdwan[1];
   var _topo = useState("Hub-Spoke"); var topo = _topo[0]; var setTopo = _topo[1];
   var _mgmt = useState("Customer Managed"); var mgmt = _mgmt[0]; var setMgmt = _mgmt[1];
+  var _sectionNotes = useState({}); var sectionNotes = _sectionNotes[0]; var setSectionNotes = _sectionNotes[1];
+  function getSectionNote(key) { return sectionNotes[key] || ""; }
+  function setSectionNote(key, val) { var u = Object.assign({}, sectionNotes); u[key] = val; setSectionNotes(u); }
   var _resiliency = useState([
     { label: "Dual-WAN / backup", score: 2 },
     { label: "Failover automation", score: 1 },
