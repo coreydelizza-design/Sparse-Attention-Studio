@@ -546,8 +546,13 @@ function ExecView({ onNav }) {
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
         <span style={{ fontFamily: T.m, fontSize: 9, color: T.green, background: T.green + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>BUSINESS CONTEXT</span>
         <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 6, marginBottom: 12 }}>Operating environment & transformation thesis</div>
+        <div style={{ marginBottom: 8 }}>
+          <label style={lbl}>Industry</label>
+          <select value={ctx.industry} onChange={function (e) { updCtx("industry", e.target.value); }} style={Object.assign({}, iS, { fontSize: 11, cursor: "pointer" })}>
+            {["Financial Services — Insurance & Wealth Management", "Financial Services — Banking", "Financial Services — Capital Markets", "Healthcare — Provider", "Healthcare — Payer", "Healthcare — Life Sciences", "Manufacturing — Discrete", "Manufacturing — Process", "Manufacturing — Industrial", "Retail — Brick & Mortar", "Retail — E-Commerce", "Retail — Omnichannel", "Technology — Software", "Technology — Hardware", "Technology — Services", "Telecommunications", "Energy — Oil & Gas", "Energy — Utilities", "Energy — Renewables", "Transportation & Logistics", "Hospitality & Travel", "Media & Entertainment", "Education — Higher Ed", "Education — K-12", "Legal & Professional Services", "Real Estate & Construction", "Pharmaceuticals & Biotech", "Automotive", "Aerospace & Defense", "Federal Government", "State Government", "Local Government", "Non-Profit & NGO", "Other"].map(function (ind) { return <option key={ind} value={ind}>{ind}</option>; })}
+          </select>
+        </div>
         {[
-          { key: "industry", label: "Industry" },
           { key: "footprint", label: "Operating Footprint" },
           { key: "posture", label: "Strategic Posture" },
         ].map(function (f) {
