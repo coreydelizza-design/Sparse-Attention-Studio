@@ -18,7 +18,7 @@ const SECS = [
   { id: "command", label: "Command Studio", icon: "⊞", phase: null, status: "active", pct: null, desc: "Workshop overview & navigation", color: T.cyan },
   { id: "stakeholder", label: "Stakeholder Studio", icon: "◎", phase: null, status: "in-progress", pct: null, desc: "People, influence & relationship mapping", color: T.cyan },
   { id: "executive", label: "Executive Studio", icon: "◈", phase: 1, status: "complete", pct: 100, desc: "Business objectives & strategy", color: T.green },
-  { id: "footprint", label: "GTT Footprint Studio", icon: "⊕", phase: null, status: "in-progress", pct: 68, desc: "GTT installed base & expansion signals", color: T.teal },
+  { id: "footprint", label: "GTT Baseline Studio", icon: "⊕", phase: null, status: "in-progress", pct: 68, desc: "Prepared GTT installed base & service baseline", color: T.teal },
   { id: "current", label: "Infrastructure Studio", icon: "▦", phase: 2, status: "complete", pct: 92, desc: "Footprint, WAN, providers, contracts", color: T.blue },
   { id: "network", label: "Network Studio", icon: "◉", phase: 3, status: "in-progress", pct: 72, desc: "SD-WAN, branch, performance", color: T.blue },
   { id: "security", label: "Security Studio", icon: "◆", phase: 4, status: "in-progress", pct: 58, desc: "SASE, zero trust, compliance", color: T.red },

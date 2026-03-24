@@ -34,7 +34,7 @@ export default function App() {
       case "command": return <CmdCenter onNav={nav} stats={stats} />;
       case "stakeholder": return <StakeholderView custAttendees={custAttendees} setCustAttendees={setCustAttendees} gttAttendees={gttAttendees} setGttAttendees={setGttAttendees} />;
       case "executive": return <ExecView onNav={nav} />;
-      case "footprint": return <FootprintView />;
+      case "footprint": return <FootprintView onNav={nav} />;
       case "current": return <CurrentView sites={sites} setSites={setSites} providers={providers} setProviders={setProviders} />;
       case "network": return <NetView sites={sites} providers={providers} netEls={netEls} setNetEls={setNetEls} netFindings={netFindings} setNetFindings={setNetFindings} />;
       case "security": return <SecView secTools={secTools} setSecTools={setSecTools} secFindings={secFindings} setSecFindings={setSecFindings} />;
