@@ -255,7 +255,7 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
 
       {/* Notes */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
-        <div style={{ fontFamily: T.m, fontSize: 9, color: T.blue, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>SESSION NOTES ({notes.length})</div>
+        <div style={{ fontFamily: T.m, fontSize: 9, color: T.blue, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>WAN TRANSFORMATION DISCUSSION NOTES ({notes.length})</div>
         {pinned.map(function (n) { return renderNoteCard(n); })}
         {unpinned.map(function (n) { return renderNoteCard(n); })}
         {!notes.length && <div style={{ fontFamily: T.f, fontSize: 12, color: T.td, fontStyle: "italic" }}>No notes yet. Capture WAN discussion points above.</div>}
