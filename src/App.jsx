@@ -34,7 +34,7 @@ export default function App() {
       case "stakeholder": return <StakeholderView custAttendees={custAttendees} setCustAttendees={setCustAttendees} gttAttendees={gttAttendees} setGttAttendees={setGttAttendees} />;
       case "executive": return <ExecView onNav={nav} />;
       case "footprint": return <FootprintView onNav={nav} />;
-      case "estate": return <NetworkEstateView sites={sites} setSites={setSites} providers={providers} setProviders={setProviders} netEls={netEls} setNetEls={setNetEls} netFindings={netFindings} setNetFindings={setNetFindings} onNav={nav} />;
+      case "estate": return <NetworkEstateView sites={sites} setSites={setSites} providers={providers} setProviders={setProviders} onNav={nav} />;
       case "security": return <SecView secTools={secTools} setSecTools={setSecTools} secFindings={secFindings} setSecFindings={setSecFindings} />;
       case "cloud": return <CldView cloudRes={cloudRes} setCloudRes={setCloudRes} cloudFindings={cloudFindings} setCloudFindings={setCloudFindings} />;
       case "future": return <SimpleView sid="future" items={FP} />;

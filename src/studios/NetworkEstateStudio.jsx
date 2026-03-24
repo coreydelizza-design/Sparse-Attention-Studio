@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { T, SECS, iS, selS, smI, lbl } from "../tokens";
+import { T, SECS, iS, selS, smI } from "../tokens";
 import { SecHead, Decision, ScoreRow } from "../components/primitives";
 
 /* ═══════ CONSTANTS ═══════ */
@@ -23,7 +23,7 @@ var AI_ACTIONS = [
 var GTT_WAN_SOLUTIONS = ["Managed SD-WAN", "DIA", "Broadband", "LTE / 5G Backup", "SD-WAN + Cloud Connect", "EnvisionDX", "Managed Network Services", "Lifecycle Support", "MACD / Change Support", "WAN Monitoring Overlay", "Branch Modernization", "Provider Consolidation", "Other"];
 
 /* ═══════ COMPONENT ═══════ */
-export default function NetworkEstateView({ sites, setSites, providers, setProviders, netEls, setNetEls, netFindings, setNetFindings, onNav }) {
+export default function NetworkEstateView({ sites, setSites, providers, setProviders, onNav }) {
   var sec = SECS.find(function (x) { return x.id === "estate"; });
   var totalSites = sites.reduce(function (a, s) { return a + s.count; }, 0);
 
