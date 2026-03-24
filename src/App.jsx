@@ -15,18 +15,21 @@ const SM = {
   blocked: { color: T.red, bg: "#fef2f2", dot: "✕", label: "Blocked" },
   active: { color: T.blue, bg: "#eff6ff", dot: "◫", label: "Active" },
 };
+
+/* ══ SECTIONS — Studio naming, new order ══ */
 const SECS = [
-  { id: "command", label: "Command Center", icon: "⊞", phase: null, status: "active", pct: null, desc: "Workshop overview", color: T.cyan },
-  { id: "roles", label: "Roles & Attendees", icon: "◎", phase: null, status: "in-progress", pct: null, desc: "Workshop participants & responsibilities", color: T.cyan },
-  { id: "executive", label: "Executive Context", icon: "◈", phase: 1, status: "complete", pct: 100, desc: "Business objectives & strategy", color: T.green },
-  { id: "current", label: "Current - Estate / Infrastructure", icon: "▦", phase: 2, status: "complete", pct: 92, desc: "Footprint, WAN, providers, contracts", color: T.blue },
-  { id: "network", label: "Network Transformation", icon: "◉", phase: 3, status: "in-progress", pct: 72, desc: "SD-WAN, branch, performance", color: T.blue },
-  { id: "security", label: "Security Transformation", icon: "◆", phase: 4, status: "in-progress", pct: 58, desc: "SASE, zero trust, compliance", color: T.red },
-  { id: "cloud", label: "Cloud Transformation", icon: "◇", phase: 5, status: "in-progress", pct: 45, desc: "Multi-cloud, migration, edge", color: T.violet },
-  { id: "future", label: "Future-State Blueprint", icon: "◬", phase: 6, status: "not-started", pct: 20, desc: "Target architecture", color: T.teal },
-  { id: "value", label: "Value & Tradeoffs", icon: "◪", phase: null, status: "not-started", pct: 10, desc: "TCO/ROI analysis", color: T.slate },
-  { id: "roadmap", label: "Transformation Roadmap", icon: "▷", phase: 7, status: "not-started", pct: 15, desc: "Phases & dependencies", color: T.slate },
-  { id: "deliver", label: "Workshop Deliverables", icon: "◱", phase: 8, status: "not-started", pct: 20, desc: "Outputs & artifacts", color: T.violet },
+  { id: "command", label: "Command Studio", icon: "⊞", phase: null, status: "active", pct: null, desc: "Workshop overview & navigation", color: T.cyan },
+  { id: "stakeholder", label: "Stakeholder Studio", icon: "◎", phase: null, status: "in-progress", pct: null, desc: "People, influence & relationship mapping", color: T.cyan },
+  { id: "executive", label: "Executive Studio", icon: "◈", phase: 1, status: "complete", pct: 100, desc: "Business objectives & strategy", color: T.green },
+  { id: "footprint", label: "GTT Footprint Studio", icon: "⊕", phase: null, status: "in-progress", pct: 68, desc: "GTT installed base & expansion signals", color: T.teal },
+  { id: "current", label: "Infrastructure Studio", icon: "▦", phase: 2, status: "complete", pct: 92, desc: "Footprint, WAN, providers, contracts", color: T.blue },
+  { id: "network", label: "Network Studio", icon: "◉", phase: 3, status: "in-progress", pct: 72, desc: "SD-WAN, branch, performance", color: T.blue },
+  { id: "security", label: "Security Studio", icon: "◆", phase: 4, status: "in-progress", pct: 58, desc: "SASE, zero trust, compliance", color: T.red },
+  { id: "cloud", label: "Cloud Studio", icon: "◇", phase: 5, status: "in-progress", pct: 45, desc: "Multi-cloud, migration, edge", color: T.violet },
+  { id: "future", label: "Architecture Studio", icon: "◬", phase: 6, status: "not-started", pct: 20, desc: "Target architecture", color: T.teal },
+  { id: "value", label: "Value Studio", icon: "◪", phase: null, status: "not-started", pct: 10, desc: "TCO/ROI analysis", color: T.slate },
+  { id: "roadmap", label: "Roadmap Studio", icon: "▷", phase: 7, status: "not-started", pct: 15, desc: "Phases & dependencies", color: T.slate },
+  { id: "deliver", label: "Deliverables Studio", icon: "◱", phase: 8, status: "not-started", pct: 20, desc: "Outputs & artifacts", color: T.violet },
 ];
 
 /* ══ SHARED DATA ══ */
@@ -133,9 +136,7 @@ function Strip({ label, pct, color, detail }) {
   </div>);
 }
 
-/* ── DISCLOSURE CARD — Core sparse attention component ──
-   Three tiers: tag/title always visible, summary visible by default, detail collapsed.
-   Controls cognitive load — only the clicked section expands. */
+/* ── DISCLOSURE CARD — Core sparse attention component ── */
 function Disc({ tag, tagColor, title, summary, defaultOpen, right, children }) {
   const _o = useState(defaultOpen === true); const open = _o[0]; const setOpen = _o[1];
   return (<div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, overflow: "hidden" }}>
@@ -274,7 +275,7 @@ function Sidebar({ active, onNav, stats }) {
     <div style={{ flex: 1, overflowY: "auto", padding: "4px 0", borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: 2 }}>
       {SECS.map(function (s) { const isA = active === s.id; const m = SM[s.status]; return (<div key={s.id} onClick={function () { onNav(s.id); }} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", cursor: "pointer", background: isA ? T.sidebarActive : "transparent", borderLeft: isA ? "3px solid " + T.cyan : "3px solid transparent" }}><span style={{ fontSize: 13, color: isA ? T.cyan : "rgba(255,255,255,0.3)", width: 18, textAlign: "center" }}>{s.icon}</span><span style={{ fontFamily: T.f, fontSize: 11, fontWeight: isA ? 600 : 400, color: isA ? "#fff" : "rgba(255,255,255,0.6)", flex: 1 }}>{s.label}</span><span style={{ fontSize: 9, color: m.color }}>{m.dot}</span></div>); })}
     </div>
-    <div style={{ padding: "10px 16px", borderTop: "1px solid rgba(255,255,255,0.04)" }}><span style={{ fontFamily: T.m, fontSize: 8, color: "rgba(255,255,255,0.15)" }}>v0.9.4 · Sparse Attention Mode</span></div>
+    <div style={{ padding: "10px 16px", borderTop: "1px solid rgba(255,255,255,0.04)" }}><span style={{ fontFamily: T.m, fontSize: 8, color: "rgba(255,255,255,0.15)" }}>v1.0.0 · Sparse Attention Mode</span></div>
   </div>);
 }
 
@@ -287,34 +288,33 @@ function Header({ section }) {
   </div>);
 }
 
-/* ═══════ COMMAND CENTER — summary-first, no data dump ═══════ */
-/* Domain definitions — what each module covers and what we aim to accomplish */
+/* ═══════ COMMAND STUDIO — summary-first ═══════ */
 const DOMAIN_DEFS = [
-  { id: "executive", label: "Executive Context", color: T.green, goal: "Align on business drivers, transformation triggers, risk posture, and ambition level",
+  { id: "executive", label: "Executive Studio", color: T.green, goal: "Align on business drivers, transformation triggers, risk posture, and ambition level",
     scope: "Capture the strategic why behind the transformation — CTO mandate, M&A integration needs, compliance pressure, cost targets. Establish shared understanding of urgency and scope before technical deep-dives.",
     outputs: "Active business drivers, risk register, ambition score, transformation narrative" },
-  { id: "current", label: "Current - Estate / Infrastructure", color: T.blue, goal: "Document the complete current-state network, site inventory, provider contracts, and constraints",
+  { id: "current", label: "Infrastructure Studio", color: T.blue, goal: "Document the complete current-state network, site inventory, provider contracts, and constraints",
     scope: "Build an accurate picture of what exists today — every site cluster, circuit type, provider relationship, and cost line. Identify architectural constraints and technical debt that shape the transformation path.",
     outputs: "Site inventory, provider matrix, constraint register, spend baseline" },
-  { id: "network", label: "Network Transformation", color: T.blue, goal: "Assess SD-WAN readiness, define branch standards, make key transport and operations decisions",
+  { id: "network", label: "Network Studio", color: T.blue, goal: "Assess SD-WAN readiness, define branch standards, make key transport and operations decisions",
     scope: "Evaluate current WAN maturity across 8 capability areas. Track site-by-site migration readiness. Capture decisions on MPLS strategy, backup connectivity, and managed vs. self-operated models. Document findings and blockers.",
     outputs: "SD-WAN readiness scores, migration tracker, key decisions, branch checklist, network element inventory" },
-  { id: "security", label: "Security Transformation", color: T.red, goal: "Evaluate SASE/SSE readiness, map vendor consolidation, advance Zero Trust program",
+  { id: "security", label: "Security Studio", color: T.red, goal: "Evaluate SASE/SSE readiness, map vendor consolidation, advance Zero Trust program",
     scope: "Score 8 SASE components. Build vendor consolidation matrix with retain/replace decisions. Track Zero Trust checklist against board mandate. Identify compliance gaps and audit findings.",
     outputs: "SASE maturity scores, vendor consolidation plan, ZT readiness checklist, security findings" },
-  { id: "cloud", label: "Cloud Transformation", color: T.violet, goal: "Assess cloud connectivity, track app migration, define on-ramp architecture decisions",
+  { id: "cloud", label: "Cloud Studio", color: T.violet, goal: "Assess cloud connectivity, track app migration, define on-ramp architecture decisions",
     scope: "Evaluate cloud readiness across 8 dimensions. Map connectivity status for each cloud provider. Track application migration priorities and status. Make decisions on hub topology and edge compute strategy.",
     outputs: "Cloud readiness scores, connectivity assessment, app migration tracker, architecture decisions" },
-  { id: "future", label: "Future-State Blueprint", color: T.teal, goal: "Define target architecture, branch model, operating state, and convergence vision",
+  { id: "future", label: "Architecture Studio", color: T.teal, goal: "Define target architecture, branch model, operating state, and convergence vision",
     scope: "Translate workshop findings into a coherent target-state vision — converged fabric, standardized branch, unified operations. Bridge between current-state reality and transformation ambition.",
     outputs: "Architecture vision, branch blueprint, operating model, convergence strategy" },
-  { id: "value", label: "Value & Tradeoffs", color: T.slate, goal: "Frame the business case with TCO analysis, value drivers, and key tradeoff decisions",
+  { id: "value", label: "Value Studio", color: T.slate, goal: "Frame the business case with TCO analysis, value drivers, and key tradeoff decisions",
     scope: "Quantify hard and soft savings. Map implementation tradeoffs (single vendor vs. best-of-breed, phased vs. big-bang). Build executive-ready financial justification.",
     outputs: "TCO/ROI model, tradeoff matrix, business case narrative" },
-  { id: "roadmap", label: "Transformation Roadmap", color: T.slate, goal: "Sequence the transformation into phased waves with dependencies and risk gates",
+  { id: "roadmap", label: "Roadmap Studio", color: T.slate, goal: "Sequence the transformation into phased waves with dependencies and risk gates",
     scope: "Organize the work into executable phases. Map critical dependencies (contract dates, staffing, board milestones). Identify sequencing risks and gate criteria.",
     outputs: "Phased rollout plan, dependency map, risk register, milestone timeline" },
-  { id: "deliver", label: "Workshop Deliverables", color: T.violet, goal: "Track and generate all workshop output artifacts for customer delivery",
+  { id: "deliver", label: "Deliverables Studio", color: T.violet, goal: "Track and generate all workshop output artifacts for customer delivery",
     scope: "Monitor deliverable status across the engagement — what's generated, what's in progress, what's pending. Ensure nothing falls through the cracks between workshop and proposal.",
     outputs: "Executive summary, architecture diagrams, BOM, TCO model, proposal deck" },
 ];
@@ -323,7 +323,7 @@ function CmdCenter({ onNav, stats }) {
   return (<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
     {/* Welcome */}
     <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "18px 22px" }}>
-      <div style={{ fontFamily: T.f, fontSize: 18, fontWeight: 700, color: T.tp }}>Workshop Command Center</div>
+      <div style={{ fontFamily: T.f, fontSize: 18, fontWeight: 700, color: T.tp }}>Command Studio</div>
       <div style={{ fontFamily: T.f, fontSize: 13, color: T.ts, marginTop: 4, lineHeight: 1.6 }}>Meridian Financial Group — {stats.totalSites} sites. This studio guides a structured network transformation workshop. Each module below has a defined scope, goal, and expected outputs. Work through them sequentially or jump to the most relevant domain. Statistics are tracked in the sidebar.</div>
     </div>
 
@@ -366,12 +366,12 @@ function CmdCenter({ onNav, stats }) {
   </div>);
 }
 
-/* ═══════ EXECUTIVE — progressive disclosure ═══════ */
+/* ═══════ EXECUTIVE STUDIO ═══════ */
 function ExecView() {
   const _d = useState([{ id: "rev", label: "Revenue Growth", color: T.green, on: true }, { id: "cost", label: "Cost Optimization", color: T.amber, on: true }, { id: "sec", label: "Security & Compliance", color: T.red, on: true }, { id: "cloud", label: "Cloud Acceleration", color: T.violet, on: true }, { id: "ai", label: "AI/ML Readiness", color: T.cyan, on: true }, { id: "ma", label: "M&A Integration", color: T.violet, on: false }, { id: "branch", label: "Branch Simplification", color: T.slate, on: false }]); const drivers = _d[0]; const setDrivers = _d[1];
   const _nr = useState("CTO mandate: cloud-first + zero trust by FY27. Pinnacle & NorthStar need integration."); const nar = _nr[0]; const setNar = _nr[1];
   const _am = useState(7); const amb = _am[0]; const setAmb = _am[1];
-  return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}><SecHead s={SECS[1]} />
+  return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}><SecHead s={SECS.find(function(x){return x.id==="executive";})} />
     <PrimaryCard tag="STRATEGIC DRIVERS" tagColor={T.green} title="Toggle active business drivers"><div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>{drivers.map(function (d) { return (<button key={d.id} onClick={function () { setDrivers(drivers.map(function (x) { return x.id === d.id ? Object.assign({}, x, { on: !x.on }) : x; })); }} style={{ fontFamily: T.f, fontSize: 11, padding: "5px 12px", borderRadius: 16, border: "1.5px solid " + (d.on ? d.color : T.border), background: d.on ? d.color + "12" : "transparent", color: d.on ? d.color : T.td, cursor: "pointer" }}>{d.on ? "● " : "○ "}{d.label}</button>); })}</div></PrimaryCard>
     <Nts tag="WHAT CHANGED?" tc={T.amber} title="Transformation Trigger" sub="Why now?" value={nar} onChange={setNar} rows={3} />
     <Disc tag="RISK ASSESSMENT" tagColor={T.red} title="Business risks" summary="4 risks identified — 1 critical, 2 high">
@@ -383,8 +383,8 @@ function ExecView() {
   </div>);
 }
 
-/* ═══════ ROLES & ATTENDEES ═══════ */
-function RolesView({ custAttendees, setCustAttendees, gttAttendees, setGttAttendees }) {
+/* ═══════ STAKEHOLDER STUDIO ═══════ */
+function StakeholderView({ custAttendees, setCustAttendees, gttAttendees, setGttAttendees }) {
   const _notes = useState("Workshop scheduled for 2-day on-site engagement at Meridian Financial Group HQ, Dallas TX.\n\nDay 1: Executive alignment, current-state discovery, network & security deep-dives.\nDay 2: Cloud transformation, maturity assessment, roadmap & deliverables.\n\nKey stakeholder: Sarah Chen (CTO) — executive sponsor, available Day 1 AM only.\nJames Kim (Cloud Architect) joining remote for Day 2 cloud session."); const wkNotes = _notes[0]; const setWkNotes = _notes[1];
 
   /* Add attendee forms */
@@ -392,6 +392,35 @@ function RolesView({ custAttendees, setCustAttendees, gttAttendees, setGttAttend
   const _gf = useState({ name: "", role: "Solutions Architect", email: "", focus: "" }); const gttForm = _gf[0]; const setGttForm = _gf[1];
   const _sc = useState(false); const showCust = _sc[0]; const setShowCust = _sc[1];
   const _sg = useState(false); const showGtt = _sg[0]; const setShowGtt = _sg[1];
+
+  /* Stakeholder mapping data */
+  const stakeholderMap = [
+    { name: "Sarah Chen", role: "CTO", mapRole: "Executive Sponsor", strength: 92, lastEngagement: "2 days ago", frequency: "Weekly", owner: "Michael Barrett", confidence: "High" },
+    { name: "Marcus Williams", role: "VP of Network Engineering", mapRole: "Technical Buyer", strength: 85, lastEngagement: "Today", frequency: "Bi-weekly", owner: "Karen Nguyen", confidence: "High" },
+    { name: "Jennifer Park", role: "Director of IT Security", mapRole: "Champion", strength: 78, lastEngagement: "1 week ago", frequency: "Monthly", owner: "Tom Bradley", confidence: "Medium" },
+    { name: "David Rodriguez", role: "Sr. Network Architect", mapRole: "Influencer", strength: 70, lastEngagement: "Today", frequency: "Weekly", owner: "Karen Nguyen", confidence: "High" },
+    { name: "Lisa Thompson", role: "Network Engineering Manager", mapRole: "Implementation Lead", strength: 65, lastEngagement: "3 days ago", frequency: "Bi-weekly", owner: "Steve Morrison", confidence: "Medium" },
+    { name: "James Kim", role: "Sr. Cloud Architect", mapRole: "Influencer", strength: 40, lastEngagement: "3 weeks ago", frequency: "Rarely", owner: "Rachel Patel", confidence: "Low" },
+    { name: "Robert Chen", role: "IT Procurement", mapRole: "Procurement", strength: 30, lastEngagement: "1 month ago", frequency: "Rarely", owner: "Michael Barrett", confidence: "Low" },
+    { name: "Amanda Foster", role: "Network Engineer", mapRole: "Influencer", strength: 55, lastEngagement: "Today", frequency: "Weekly", owner: "Karen Nguyen", confidence: "Medium" },
+  ];
+
+  const coverageGaps = [
+    { gap: "No CISO identified", severity: "critical", detail: "Security transformation requires executive security sponsor" },
+    { gap: "No CFO / Finance contact", severity: "high", detail: "Business case approval needs finance stakeholder" },
+    { gap: "No Legal / Compliance lead", severity: "high", detail: "Contract renegotiation requires legal review" },
+    { gap: "Cloud owner access limited", severity: "medium", detail: "James Kim remote-only, 3-week engagement gap" },
+    { gap: "No NOC / Operations contact", severity: "medium", detail: "Day-2 operations handoff undefined" },
+  ];
+
+  const actions = [
+    { action: "Schedule executive alignment with CTO + CFO", priority: "Critical", owner: "Michael Barrett", due: "This week" },
+    { action: "Identify CISO or security executive sponsor", priority: "Critical", owner: "Michael Barrett", due: "Before Phase 4" },
+    { action: "Strengthen James Kim engagement (cloud)", priority: "High", owner: "Rachel Patel", due: "Next 2 weeks" },
+    { action: "Add procurement contact to buying committee", priority: "High", owner: "Michael Barrett", due: "Next 2 weeks" },
+    { action: "Map NOC / operations stakeholders", priority: "Medium", owner: "Steve Morrison", due: "Phase 2" },
+    { action: "Confirm Jennifer Park as security champion", priority: "Medium", owner: "Tom Bradley", due: "This week" },
+  ];
 
   function addCust() {
     if (!custForm.name) return;
@@ -430,13 +459,112 @@ function RolesView({ custAttendees, setCustAttendees, gttAttendees, setGttAttend
 
   const custPresent = custAttendees.filter(function (a) { return a.present; }).length;
   const gttPresent = gttAttendees.filter(function (a) { return a.present; }).length;
+  const totalStakeholders = custAttendees.length;
+  const executiveCount = custAttendees.filter(function(a){ return a.role.indexOf("CTO")>=0||a.role.indexOf("CIO")>=0||a.role.indexOf("CISO")>=0||a.role.indexOf("VP")>=0; }).length;
+  const technicalCount = custAttendees.filter(function(a){ return a.role.indexOf("Architect")>=0||a.role.indexOf("Engineer")>=0||a.role.indexOf("Manager")>=0; }).length;
+  const mappedCount = stakeholderMap.filter(function(s){ return s.strength >= 50; }).length;
+
+  const strengthColor = function(s) { return s >= 75 ? T.green : s >= 50 ? T.amber : T.red; };
 
   return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-    <SecHead s={SECS[1]} />
+    <SecHead s={SECS.find(function(x){return x.id==="stakeholder";})} />
 
-    <Nts tag="WORKSHOP LOGISTICS" tc={T.cyan} title="Session Notes & Logistics" sub="Agenda, schedule, logistics, key stakeholder availability" value={wkNotes} onChange={setWkNotes} rows={5} />
+    {/* Summary Cards Row */}
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+      {[
+        { label: "Total Stakeholders", value: totalStakeholders, sub: custPresent + " present", color: T.cyan },
+        { label: "Executive", value: executiveCount, sub: "CxO / VP level", color: T.green },
+        { label: "Technical", value: technicalCount, sub: "Architects & Engineers", color: T.blue },
+        { label: "Mapped", value: mappedCount + "/" + totalStakeholders, sub: (totalStakeholders - mappedCount) + " need attention", color: T.amber },
+      ].map(function(c) {
+        return (<div key={c.label} style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "14px 16px" }}>
+          <div style={{ fontFamily: T.m, fontSize: 9, color: c.color, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 6 }}>{c.label}</div>
+          <div style={{ fontFamily: T.f, fontSize: 24, fontWeight: 700, color: T.tp }}>{c.value}</div>
+          <div style={{ fontFamily: T.f, fontSize: 11, color: T.td, marginTop: 2 }}>{c.sub}</div>
+        </div>);
+      })}
+    </div>
 
-    {/* Two-column layout */}
+    {/* Stakeholder Map — grouped by role */}
+    <PrimaryCard tag="STAKEHOLDER MAP" tagColor={T.cyan} title="Influence & role mapping">
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        {["Executive Sponsor", "Technical Buyer", "Champion", "Influencer", "Implementation Lead", "Procurement"].map(function(mapRole) {
+          const members = stakeholderMap.filter(function(s){ return s.mapRole === mapRole; });
+          if (!members.length) return null;
+          var roleColor = mapRole === "Executive Sponsor" ? T.green : mapRole === "Technical Buyer" ? T.blue : mapRole === "Champion" ? T.violet : mapRole === "Procurement" ? T.amber : T.cyan;
+          return (<div key={mapRole} style={{ background: roleColor + "04", borderRadius: 8, border: "1px solid " + roleColor + "15", padding: "12px 14px" }}>
+            <div style={{ fontFamily: T.m, fontSize: 9, color: roleColor, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>{mapRole}</div>
+            {members.map(function(m, i) {
+              return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: i < members.length - 1 ? "1px solid " + roleColor + "12" : "none" }}>
+                <div style={{ width: 28, height: 28, borderRadius: 14, background: roleColor + "15", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: T.f, fontSize: 10, fontWeight: 700, color: roleColor, flexShrink: 0 }}>{m.name.split(" ").map(function(n){return n[0];}).join("")}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{m.name}</div>
+                  <div style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>{m.role}</div>
+                </div>
+                <div style={{ width: 32, height: 4, borderRadius: 2, background: T.border, overflow: "hidden", flexShrink: 0 }}>
+                  <div style={{ width: m.strength + "%", height: "100%", background: strengthColor(m.strength), borderRadius: 2 }} />
+                </div>
+              </div>);
+            })}
+          </div>);
+        })}
+      </div>
+    </PrimaryCard>
+
+    {/* Relationship Health */}
+    <Disc tag="RELATIONSHIP HEALTH" tagColor={T.green} title="Engagement strength & coverage" summary={mappedCount + " strong · " + (totalStakeholders - mappedCount) + " need attention"} defaultOpen={true}>
+      {stakeholderMap.map(function(s, i) {
+        return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: i < stakeholderMap.length - 1 ? "1px solid " + T.border : "none" }}>
+          <div style={{ width: 28, height: 28, borderRadius: 14, background: strengthColor(s.strength) + "15", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: T.f, fontSize: 10, fontWeight: 700, color: strengthColor(s.strength), flexShrink: 0 }}>{s.name.split(" ").map(function(n){return n[0];}).join("")}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{s.name}</span>
+              <span style={{ fontFamily: T.m, fontSize: 9, color: strengthColor(s.strength), background: strengthColor(s.strength) + "12", padding: "1px 6px", borderRadius: 3 }}>{s.confidence}</span>
+            </div>
+            <div style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>{s.mapRole} · Last: {s.lastEngagement} · {s.frequency}</div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+            <div style={{ width: 60, height: 5, borderRadius: 3, background: T.border, overflow: "hidden" }}>
+              <div style={{ width: s.strength + "%", height: "100%", background: strengthColor(s.strength), borderRadius: 3 }} />
+            </div>
+            <span style={{ fontFamily: T.m, fontSize: 10, fontWeight: 600, color: strengthColor(s.strength), width: 28, textAlign: "right" }}>{s.strength}</span>
+          </div>
+          <div style={{ fontFamily: T.f, fontSize: 10, color: T.td, width: 100, flexShrink: 0, textAlign: "right" }}>{s.owner}</div>
+        </div>);
+      })}
+    </Disc>
+
+    {/* Coverage Gaps */}
+    <Disc tag="COVERAGE GAPS" tagColor={T.red} title="Missing stakeholders & access" summary={coverageGaps.length + " gaps identified — " + coverageGaps.filter(function(g){return g.severity==="critical";}).length + " critical"}>
+      {coverageGaps.map(function(g, i) {
+        return (<div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: i < coverageGaps.length - 1 ? "1px solid " + T.border : "none" }}>
+          <Sev s={g.severity} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{g.gap}</div>
+            <div style={{ fontFamily: T.f, fontSize: 11, color: T.td, marginTop: 2 }}>{g.detail}</div>
+          </div>
+        </div>);
+      })}
+    </Disc>
+
+    {/* Recommended Actions */}
+    <Disc tag="NEXT ACTIONS" tagColor={T.violet} title="Recommended stakeholder actions" summary={actions.length + " actions queued"}>
+      {actions.map(function(a, i) {
+        var pc = a.priority === "Critical" ? T.red : a.priority === "High" ? T.amber : T.blue;
+        return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0", borderBottom: i < actions.length - 1 ? "1px solid " + T.border : "none" }}>
+          <span style={{ fontFamily: T.m, fontSize: 9, color: pc, background: pc + "12", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase", flexShrink: 0 }}>{a.priority}</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: T.f, fontSize: 12, color: T.tp }}>{a.action}</div>
+            <div style={{ fontFamily: T.f, fontSize: 10, color: T.td, marginTop: 1 }}>{a.owner} · {a.due}</div>
+          </div>
+        </div>);
+      })}
+    </Disc>
+
+    {/* Session Notes */}
+    <Nts tag="SESSION NOTES" tc={T.cyan} title="Workshop Logistics & Notes" sub="Agenda, schedule, logistics, key stakeholder availability" value={wkNotes} onChange={setWkNotes} rows={5} />
+
+    {/* Two-column layout — attendee lists */}
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
 
       {/* CUSTOMER ATTENDEES */}
@@ -498,16 +626,202 @@ function RolesView({ custAttendees, setCustAttendees, gttAttendees, setGttAttend
   </div>);
 }
 
-/* ═══════ CURRENT ESTATE — summary + detail drill-down ═══════ */
+/* ═══════ GTT FOOTPRINT STUDIO ═══════ */
+function FootprintView() {
+  /* Mock GTT footprint data */
+  const services = [
+    { name: "SD-WAN (Managed)", status: "Active", sites: 8, mrr: "$12K", category: "Network" },
+    { name: "DIA", status: "Active", sites: 42, mrr: "$56K", category: "Network" },
+    { name: "MPLS", status: "Active", sites: 87, mrr: "$175K", category: "Network" },
+    { name: "Broadband", status: "Active", sites: 12, mrr: "$8K", category: "Network" },
+    { name: "SIP / Voice", status: "Active", sites: 35, mrr: "$22K", category: "Voice" },
+    { name: "Cloud Connect (AWS)", status: "Active", sites: 2, mrr: "$18K", category: "Cloud" },
+    { name: "EnvisionDX", status: "Pilot", sites: 8, mrr: "$4K", category: "Managed" },
+    { name: "LTE Backup", status: "Active", sites: 35, mrr: "$8K", category: "Network" },
+  ];
+
+  const regions = [
+    { region: "Northeast US", sites: 34, services: 4, products: "MPLS, DIA, SIP, LTE", penetration: 72 },
+    { region: "Southeast US", sites: 28, services: 3, products: "MPLS, DIA, SIP", penetration: 58 },
+    { region: "Midwest US", sites: 22, services: 2, products: "MPLS, DIA", penetration: 42 },
+    { region: "West US", sites: 19, services: 3, products: "MPLS, DIA, LTE", penetration: 55 },
+    { region: "Canada", sites: 22, services: 2, products: "MPLS, DIA", penetration: 38 },
+    { region: "Pinnacle (Acquired)", sites: 38, services: 1, products: "MPLS only", penetration: 15 },
+    { region: "NorthStar (Acquired)", sites: 12, services: 0, products: "None — not on GTT", penetration: 0 },
+    { region: "Data Centers", sites: 3, services: 5, products: "DIA, Cloud Connect, MPLS, SIP, EnvisionDX", penetration: 90 },
+  ];
+
+  const expansionSignals = [
+    { signal: "NorthStar Wealth — 12 sites, zero GTT presence", type: "White Space", potential: "$24K MRR", priority: "Critical" },
+    { signal: "Pinnacle Insurance — single-product (MPLS only)", type: "Cross-Sell", potential: "$42K MRR", priority: "High" },
+    { signal: "SD-WAN expansion: 8 → 125 sites", type: "Upsell", potential: "$180K MRR", priority: "High" },
+    { signal: "SASE / Security — no GTT security services", type: "White Space", potential: "$95K MRR", priority: "High" },
+    { signal: "Cloud Connect — Azure ExpressRoute not sold", type: "Cross-Sell", potential: "$14K MRR", priority: "Medium" },
+    { signal: "Managed Services — EnvisionDX pilot → full deploy", type: "Upsell", potential: "$35K MRR", priority: "Medium" },
+    { signal: "Canada — LTE backup not deployed (22 sites)", type: "Cross-Sell", potential: "$5K MRR", priority: "Low" },
+  ];
+
+  const contracts = [
+    { name: "MPLS Master", value: "$2.1M/yr", renewal: "Dec 2026", status: "At Risk", action: "Transition to SD-WAN" },
+    { name: "DIA Bundle", value: "$680K/yr", renewal: "M2M", status: "Healthy", action: "Expand" },
+    { name: "SIP / Voice", value: "$264K/yr", renewal: "Jun 2027", status: "Healthy", action: "Retain" },
+    { name: "Cloud Connect", value: "$216K/yr", renewal: "2027", status: "Healthy", action: "Expand" },
+    { name: "EnvisionDX Pilot", value: "$48K/yr", renewal: "Q1 2026", status: "Pilot", action: "Convert to production" },
+  ];
+
+  const totalMRR = "$303K";
+  const totalARR = "$3.64M";
+  const totalSites = 178;
+  const gttEnabledSites = 141;
+  const activeServices = services.filter(function(s){ return s.status === "Active"; }).length;
+  const expansionMRR = expansionSignals.reduce(function(a, s) {
+    var num = parseInt(s.potential.replace(/[^0-9]/g, ""));
+    return a + num;
+  }, 0);
+
+  const penetrationColor = function(p) { return p >= 70 ? T.green : p >= 40 ? T.amber : T.red; };
+
+  return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <SecHead s={SECS.find(function(x){return x.id==="footprint";})} />
+
+    {/* Footprint Summary Cards */}
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+      {[
+        { label: "Active Services", value: activeServices, sub: services.length + " total products", color: T.teal },
+        { label: "GTT-Enabled Sites", value: gttEnabledSites + "/" + totalSites, sub: Math.round(gttEnabledSites/totalSites*100) + "% coverage", color: T.blue },
+        { label: "Current MRR", value: totalMRR, sub: totalARR + " ARR", color: T.green },
+        { label: "Expansion Potential", value: "$" + Math.round(expansionMRR) + "K MRR", sub: expansionSignals.length + " signals identified", color: T.violet },
+      ].map(function(c) {
+        return (<div key={c.label} style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "14px 16px" }}>
+          <div style={{ fontFamily: T.m, fontSize: 9, color: c.color, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 6 }}>{c.label}</div>
+          <div style={{ fontFamily: T.f, fontSize: 24, fontWeight: 700, color: T.tp }}>{c.value}</div>
+          <div style={{ fontFamily: T.f, fontSize: 11, color: T.td, marginTop: 2 }}>{c.sub}</div>
+        </div>);
+      })}
+    </div>
+
+    {/* Service Mix + Attach Depth */}
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+      {/* Services in Place */}
+      <PrimaryCard tag="SERVICE MIX" tagColor={T.teal} title="Active GTT services">
+        {services.map(function(s, i) {
+          var statusColor = s.status === "Active" ? T.green : s.status === "Pilot" ? T.cyan : T.td;
+          return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: i < services.length - 1 ? "1px solid " + T.border : "none" }}>
+            <span style={{ fontFamily: T.m, fontSize: 9, color: statusColor, background: statusColor + "12", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase", width: 42, textAlign: "center", flexShrink: 0 }}>{s.status}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{s.name}</div>
+              <div style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>{s.sites} sites · {s.category}</div>
+            </div>
+            <span style={{ fontFamily: T.m, fontSize: 11, fontWeight: 600, color: T.tp, flexShrink: 0 }}>{s.mrr}</span>
+          </div>);
+        })}
+      </PrimaryCard>
+
+      {/* Product Penetration */}
+      <PrimaryCard tag="PRODUCT PENETRATION" tagColor={T.blue} title="Attach depth by category">
+        {[
+          { label: "Connectivity (MPLS/DIA/BB)", pct: 82, color: T.blue },
+          { label: "SD-WAN", pct: 6, color: T.cyan },
+          { label: "Voice / SIP", pct: 28, color: T.green },
+          { label: "Cloud Connect", pct: 4, color: T.violet },
+          { label: "Security / SASE", pct: 0, color: T.red },
+          { label: "Managed Services", pct: 6, color: T.teal },
+          { label: "LTE / Wireless Backup", pct: 28, color: T.amber },
+        ].map(function(p, i) {
+          return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < 6 ? "1px solid " + T.border : "none" }}>
+            <span style={{ fontFamily: T.f, fontSize: 11, color: T.tp, width: 160, flexShrink: 0 }}>{p.label}</span>
+            <div style={{ flex: 1, height: 8, background: T.border, borderRadius: 4, overflow: "hidden" }}>
+              <div style={{ width: Math.max(p.pct, 1) + "%", height: "100%", background: p.color, borderRadius: 4, minWidth: p.pct > 0 ? 3 : 0 }} />
+            </div>
+            <span style={{ fontFamily: T.m, fontSize: 10, fontWeight: 600, color: p.pct >= 30 ? T.green : p.pct >= 10 ? T.amber : T.red, width: 32, textAlign: "right" }}>{p.pct}%</span>
+          </div>);
+        })}
+        <div style={{ marginTop: 10, padding: "10px 12px", background: T.red + "06", borderRadius: 6, border: "1px solid " + T.red + "12" }}>
+          <div style={{ fontFamily: T.f, fontSize: 11, fontWeight: 600, color: T.red }}>White Space Alert</div>
+          <div style={{ fontFamily: T.f, fontSize: 11, color: T.ts, marginTop: 2 }}>Security / SASE has 0% penetration. SD-WAN at 6%. Significant expansion opportunity across both categories.</div>
+        </div>
+      </PrimaryCard>
+    </div>
+
+    {/* Regional Presence */}
+    <Disc tag="REGIONAL PRESENCE" tagColor={T.blue} title="Sites by region" summary={regions.length + " regions · " + gttEnabledSites + " GTT-enabled sites"} defaultOpen={true}>
+      {regions.map(function(r, i) {
+        return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: i < regions.length - 1 ? "1px solid " + T.border : "none" }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{r.region}</div>
+            <div style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>{r.sites} sites · {r.services} products · {r.products}</div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            <div style={{ width: 80, height: 6, borderRadius: 3, background: T.border, overflow: "hidden" }}>
+              <div style={{ width: r.penetration + "%", height: "100%", background: penetrationColor(r.penetration), borderRadius: 3 }} />
+            </div>
+            <span style={{ fontFamily: T.m, fontSize: 10, fontWeight: 600, color: penetrationColor(r.penetration), width: 32, textAlign: "right" }}>{r.penetration}%</span>
+          </div>
+        </div>);
+      })}
+    </Disc>
+
+    {/* Expansion Signals */}
+    <Disc tag="EXPANSION SIGNALS" tagColor={T.violet} title="Growth opportunities" summary={"$" + Math.round(expansionMRR) + "K MRR potential · " + expansionSignals.length + " signals"}>
+      {expansionSignals.map(function(s, i) {
+        var pc = s.priority === "Critical" ? T.red : s.priority === "High" ? T.amber : s.priority === "Medium" ? T.blue : T.td;
+        var tc = s.type === "White Space" ? T.red : s.type === "Cross-Sell" ? T.violet : T.teal;
+        return (<div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: i < expansionSignals.length - 1 ? "1px solid " + T.border : "none" }}>
+          <span style={{ fontFamily: T.m, fontSize: 9, color: pc, background: pc + "12", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase", flexShrink: 0, marginTop: 2 }}>{s.priority}</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 500, color: T.tp }}>{s.signal}</div>
+            <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+              <span style={{ fontFamily: T.m, fontSize: 9, color: tc, background: tc + "10", padding: "1px 6px", borderRadius: 3 }}>{s.type}</span>
+              <span style={{ fontFamily: T.m, fontSize: 9, color: T.green, background: T.green + "10", padding: "1px 6px", borderRadius: 3 }}>{s.potential}</span>
+            </div>
+          </div>
+        </div>);
+      })}
+    </Disc>
+
+    {/* Contract / Footprint Health */}
+    <Disc tag="CONTRACT HEALTH" tagColor={T.amber} title="Renewal exposure & risk" summary={contracts.length + " contracts · " + contracts.filter(function(c){return c.status==="At Risk";}).length + " at risk"}>
+      {contracts.map(function(c, i) {
+        var sc = c.status === "Healthy" ? T.green : c.status === "At Risk" ? T.red : c.status === "Pilot" ? T.cyan : T.td;
+        return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0", borderBottom: i < contracts.length - 1 ? "1px solid " + T.border : "none" }}>
+          <span style={{ fontFamily: T.m, fontSize: 9, color: sc, background: sc + "12", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase", width: 50, textAlign: "center", flexShrink: 0 }}>{c.status}</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{c.name}</div>
+            <div style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>Renewal: {c.renewal} · {c.action}</div>
+          </div>
+          <span style={{ fontFamily: T.m, fontSize: 11, fontWeight: 600, color: T.tp, flexShrink: 0 }}>{c.value}</span>
+        </div>);
+      })}
+    </Disc>
+
+    {/* Footprint Quality Summary */}
+    <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
+      <div style={{ fontFamily: T.m, fontSize: 9, color: T.teal, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>FOOTPRINT QUALITY</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+        {[
+          { label: "Service Diversity", value: "Low", detail: "82% revenue from connectivity", color: T.red },
+          { label: "Multi-Product Sites", value: "23%", detail: "Most sites single-product", color: T.amber },
+          { label: "Renewal Concentration", value: "High Risk", detail: "58% ARR renews Dec 2026", color: T.red },
+        ].map(function(q) {
+          return (<div key={q.label} style={{ padding: "10px 12px", background: q.color + "06", borderRadius: 6, border: "1px solid " + q.color + "12" }}>
+            <div style={{ fontFamily: T.f, fontSize: 11, fontWeight: 600, color: q.color }}>{q.value}</div>
+            <div style={{ fontFamily: T.f, fontSize: 11, fontWeight: 500, color: T.tp, marginTop: 2 }}>{q.label}</div>
+            <div style={{ fontFamily: T.f, fontSize: 10, color: T.td, marginTop: 2 }}>{q.detail}</div>
+          </div>);
+        })}
+      </div>
+    </div>
+  </div>);
+}
+
+/* ═══════ INFRASTRUCTURE STUDIO ═══════ */
 function CurrentView({ sites, setSites, providers, setProviders }) {
   const total = sites.reduce(function (a, s) { return a + s.count; }, 0);
   const _notes = useState("Meridian Financial Group — 125 branches, 14 US states + 3 CA provinces. 2 DCs + DR. Hub-and-spoke MPLS. M&A: Pinnacle (38 sites, Cisco ASA) and NorthStar (12, not on WAN). $4.2M annual spend. 23% CPE past EOS."); const notes = _notes[0]; const setNotes = _notes[1];
   function updateSite(id, field, value) { setSites(sites.map(function (s) { return s.id === id ? Object.assign({}, s, (function () { var o = {}; o[field] = value; return o; })()) : s; })); }
 
-  return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}><SecHead s={SECS[2]} />
-    {/* PRIMARY — notes */}
+  return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}><SecHead s={SECS.find(function(x){return x.id==="current";})} />
     <Nts tag="ESTATE OVERVIEW" tc={T.blue} title="Infrastructure Notes" sub="Capture overall estate context and observations" value={notes} onChange={setNotes} rows={6} />
-    {/* SECONDARY — site summary with inline editing */}
     <PrimaryCard tag="SITE INVENTORY" tagColor={T.blue} title={total + " sites · " + sites.length + " locations"} right={<button onClick={function () { setSites(sites.concat([{ id: Date.now(), region: "New Region", type: "Branch", count: 0, states: "", circuit: "MPLS", bandwidth: "100 Mbps", provider: "", notes: "" }])); }} style={{ fontFamily: T.f, fontSize: 10, color: "#fff", background: T.blue, border: "none", borderRadius: 5, padding: "5px 12px", cursor: "pointer" }}>+ Add</button>}>
       {sites.map(function (s, i) { return (<div key={s.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 0", borderBottom: i < sites.length - 1 ? "1px solid " + T.border : "none", flexWrap: "wrap" }}>
         <span style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp, width: 120, flexShrink: 0 }}>{s.region}</span>
@@ -519,7 +833,6 @@ function CurrentView({ sites, setSites, providers, setProviders }) {
         <button onClick={function () { setSites(sites.filter(function (x) { return x.id !== s.id; })); }} style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 11, marginLeft: "auto" }}>✕</button>
       </div>); })}
     </PrimaryCard>
-    {/* TERTIARY — providers collapsed */}
     <Disc tag="PROVIDERS" tagColor={T.amber} title="WAN contracts" summary={providers.length + " providers — $4.2M/yr"}>
       {providers.map(function (p, i) { return (<div key={p.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < providers.length - 1 ? "1px solid " + T.border : "none" }}><span style={{ fontFamily: T.f, fontSize: 12, fontWeight: 500, width: 80 }}>{p.name}</span><span style={{ fontFamily: T.f, fontSize: 11, color: T.ts, width: 100 }}>{p.type}</span><span style={{ fontFamily: T.f, fontSize: 11, fontWeight: 500, width: 65 }}>{p.cost}</span><span style={{ fontFamily: T.f, fontSize: 11, color: T.td, width: 65 }}>{p.expiry}</span><select value={p.action} onChange={function (e) { setProviders(providers.map(function (x, j) { return j === i ? Object.assign({}, x, { action: e.target.value }) : x; })); }} style={Object.assign({}, selS, { fontSize: 10 })}>{["Retain", "Retain & Expand", "Non-Renew", "Early Terminate", "Renegotiate", "Evaluate"].map(function (o) { return <option key={o}>{o}</option>; })}</select></div>); })}
     </Disc>
@@ -529,7 +842,7 @@ function CurrentView({ sites, setSites, providers, setProviders }) {
   </div>);
 }
 
-/* ═══════ NETWORK — modular context block ═══════ */
+/* ═══════ NETWORK STUDIO ═══════ */
 const NET_COLS = [{ key: "device", label: "Device" }, { key: "model", label: "Model" }, { key: "qty", label: "Qty" }, { key: "location", label: "Loc" }, { key: "circuit", label: "Circuit" }, { key: "status", label: "Status" }];
 
 function NetView({ sites, providers, netEls, setNetEls, netFindings, setNetFindings }) {
@@ -545,10 +858,8 @@ function NetView({ sites, providers, netEls, setNetEls, netFindings, setNetFindi
   const totalS = sites.reduce(function (a, s) { return a + s.count; }, 0);
 
   return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-    <SecHead s={SECS[3]} />
+    <SecHead s={SECS.find(function(x){return x.id==="network";})} />
     <Strip label="Network Tower" pct={72} color={T.blue} detail={totalMig + "/" + totalS + " migrated · " + netEls.length + " elements"} />
-
-    {/* PRIMARY — notes + AI + decisions */}
     <Nts tag="NETWORK NOTES" tc={T.blue} title="Session Notes" sub="Primary capture surface — findings, decisions, blockers" value={notes} onChange={setNotes} rows={7} />
     <AIBtn label="Network readiness analysis" color={T.blue} data={{ notes: notes, sdwan: sdwan, findings: netFindings, decisions: { mpls: d1, backup: d2, ops: d3 }, elements: netEls.length }} />
 
@@ -560,7 +871,6 @@ function NetView({ sites, providers, netEls, setNetEls, netFindings, setNetFindi
       <Decision question="Operations model?" options={["Self-Managed", "Managed", "Co-Managed", "Evaluate"]} selected={d3} onSelect={setD3} color={T.blue} />
     </PrimaryCard>
 
-    {/* SECONDARY — readiness + findings (collapsed by default) */}
     <Disc tag="SD-WAN READINESS" tagColor={T.blue} title="Maturity assessment" summary={"Avg: " + sdAvg + " / 5"} right={<span style={{ fontFamily: T.f, fontSize: 16, fontWeight: 700, color: sdAvg >= 3.5 ? T.green : sdAvg >= 2.5 ? T.amber : T.red }}>{sdAvg}</span>}>
       {sdwan.map(function (x, i) { return <div key={i} style={{ borderBottom: i < sdwan.length - 1 ? "1px solid " + T.border : "none" }}><ScoreRow label={x.label} score={x.score} onChange={function (v) { setSdwan(sdwan.map(function (s, j) { return j === i ? Object.assign({}, s, { score: v }) : s; })); }} color={T.blue} /></div>; })}
     </Disc>
@@ -577,14 +887,13 @@ function NetView({ sites, providers, netEls, setNetEls, netFindings, setNetFindi
       {brCheck.map(function (x, i) { return <div key={i} style={{ borderBottom: i < brCheck.length - 1 ? "1px solid " + T.border : "none" }}><Chk label={x.label} done={x.done} sub={x.sub} onToggle={function () { setBrCheck(brCheck.map(function (c, j) { return j === i ? Object.assign({}, c, { done: !c.done }) : c; })); }} /></div>; })}
     </Disc>
 
-    {/* TERTIARY — raw inventory, collapsed */}
     <Disc tag="INVENTORY" tagColor={T.blue} title="Network elements" summary={netEls.length + " devices tracked"}>
       <InvTable cols={NET_COLS} rows={netEls} onRm={function (id) { setNetEls(netEls.filter(function (e) { return e.id !== id; })); }} color={T.blue} />
     </Disc>
   </div>);
 }
 
-/* ═══════ SECURITY — modular context block ═══════ */
+/* ═══════ SECURITY STUDIO ═══════ */
 const SEC_COLS = [{ key: "category", label: "Category" }, { key: "vendor", label: "Vendor" }, { key: "product", label: "Product" }, { key: "coverage", label: "Coverage" }, { key: "lifecycle", label: "Lifecycle" }, { key: "priority", label: "Priority" }];
 
 function SecView({ secTools, setSecTools, secFindings, setSecFindings }) {
@@ -596,7 +905,7 @@ function SecView({ secTools, setSecTools, secFindings, setSecFindings }) {
   const _sd2 = useState(""); const sd2 = _sd2[0]; const setSd2 = _sd2[1];
   const saseAvg = (sase.reduce(function (a, x) { return a + x.score; }, 0) / sase.length).toFixed(1);
 
-  return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}><SecHead s={SECS[4]} />
+  return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}><SecHead s={SECS.find(function(x){return x.id==="security";})} />
     <Strip label="Security Tower" pct={58} color={T.red} detail={secTools.length + " tools · " + vendors.filter(function (v) { return v.decision === "Replace"; }).length + " to replace"} />
     <Nts tag="SECURITY NOTES" tc={T.red} title="Session Notes" sub="Posture, ZT, vendor decisions" value={notes} onChange={setNotes} rows={5} />
     <AIBtn label="Security posture analysis" color={T.red} data={{ notes: notes, sase: sase, vendors: vendors, zt: zt, findings: secFindings }} />
@@ -621,7 +930,7 @@ function SecView({ secTools, setSecTools, secFindings, setSecFindings }) {
   </div>);
 }
 
-/* ═══════ CLOUD — modular context block ═══════ */
+/* ═══════ CLOUD STUDIO ═══════ */
 const CLD_COLS = [{ key: "provider", label: "CSP" }, { key: "service", label: "Service" }, { key: "region", label: "Region" }, { key: "connect", label: "Connect" }, { key: "workloads", label: "Wkld" }, { key: "cost", label: "Cost" }, { key: "tier", label: "Tier" }];
 
 function CldView({ cloudRes, setCloudRes, cloudFindings, setCloudFindings }) {
@@ -634,7 +943,7 @@ function CldView({ cloudRes, setCloudRes, cloudFindings, setCloudFindings }) {
   const crAvg = (cr.reduce(function (a, x) { return a + x.score; }, 0) / cr.length).toFixed(1);
   const totalWk = cloudRes.reduce(function (a, r) { return a + (r.workloads || 0); }, 0);
 
-  return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}><SecHead s={SECS[5]} />
+  return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}><SecHead s={SECS.find(function(x){return x.id==="cloud";})} />
     <Strip label="Cloud Tower" pct={45} color={T.violet} detail={totalWk + " workloads · " + apps.filter(function (a) { return a.status === "Complete"; }).length + "/" + apps.length + " migrated"} />
     <Nts tag="CLOUD NOTES" tc={T.violet} title="Session Notes" sub="Connectivity, migration, cost, architecture" value={notes} onChange={setNotes} rows={5} />
     <AIBtn label="Cloud readiness analysis" color={T.violet} data={{ notes: notes, readiness: cr, connectivity: conn, apps: apps, findings: cloudFindings }} />
@@ -687,8 +996,9 @@ export default function App() {
   function renderContent() {
     switch (active) {
       case "command": return <CmdCenter onNav={nav} stats={stats} />;
-      case "roles": return <RolesView custAttendees={custAttendees} setCustAttendees={setCustAttendees} gttAttendees={gttAttendees} setGttAttendees={setGttAttendees} />;
+      case "stakeholder": return <StakeholderView custAttendees={custAttendees} setCustAttendees={setCustAttendees} gttAttendees={gttAttendees} setGttAttendees={setGttAttendees} />;
       case "executive": return <ExecView />;
+      case "footprint": return <FootprintView />;
       case "current": return <CurrentView sites={sites} setSites={setSites} providers={providers} setProviders={setProviders} />;
       case "network": return <NetView sites={sites} providers={providers} netEls={netEls} setNetEls={setNetEls} netFindings={netFindings} setNetFindings={setNetFindings} />;
       case "security": return <SecView secTools={secTools} setSecTools={setSecTools} secFindings={secFindings} setSecFindings={setSecFindings} />;
