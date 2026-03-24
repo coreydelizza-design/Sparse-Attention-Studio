@@ -19,7 +19,7 @@ const SECS = [
   { id: "stakeholder", label: "Stakeholder Studio", icon: "◎", phase: null, status: "in-progress", pct: null, desc: "People, influence & relationship mapping", color: T.cyan },
   { id: "executive", label: "Executive Studio", icon: "◈", phase: 1, status: "complete", pct: 100, desc: "Business objectives & strategy", color: T.green },
   { id: "footprint", label: "GTT Baseline Studio", icon: "⊕", phase: null, status: "in-progress", pct: 68, desc: "Prepared GTT installed base & service baseline", color: T.teal },
-  { id: "estate", label: "Network Estate Studio", icon: "▦", phase: 2, status: "in-progress", pct: 72, desc: "Technical strategy, estate discovery & opportunity development", color: T.blue },
+  { id: "estate", label: "WAN Transformation Studio", icon: "▦", phase: 2, status: "in-progress", pct: 72, desc: "WAN modernization, SD-WAN, resiliency & managed services", color: T.blue },
   { id: "security", label: "Security Studio", icon: "◆", phase: 4, status: "in-progress", pct: 58, desc: "SASE, zero trust, compliance", color: T.red },
   { id: "cloud", label: "Cloud Studio", icon: "◇", phase: 5, status: "in-progress", pct: 45, desc: "Multi-cloud, migration, edge", color: T.violet },
   { id: "future", label: "Architecture Studio", icon: "◬", phase: 6, status: "not-started", pct: 20, desc: "Target architecture", color: T.teal },
