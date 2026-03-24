@@ -30,16 +30,16 @@ function FootprintView({ onNav }) {
 
   /* ── Services ── */
   var _svcs = useState([
-    { id: 1, name: "DIA", category: "DIA", status: "Active", qty: 44, siteCt: 42, regionCt: 5, mrr: 56, contractId: "CTR-2024-DIA", circuits: ["DIA"], bwDist: [{ band: "<50 Mbps", qty: 0 }, { band: "50–100 Mbps", qty: 18 }, { band: "100–250 Mbps", qty: 16 }, { band: "250–500 Mbps", qty: 6 }, { band: "500 Mbps–1 Gbps", qty: 2 }, { band: "1 Gbps+", qty: 2 }], confidence: "Verified", owner: "Karen Nguyen", notes: "" },
-    { id: 2, name: "MPLS", category: "MPLS", status: "Active", qty: 87, siteCt: 87, regionCt: 6, mrr: 175, contractId: "CTR-2022-MPLS", circuits: ["MPLS"], bwDist: [{ band: "<50 Mbps", qty: 22 }, { band: "50–100 Mbps", qty: 48 }, { band: "100–250 Mbps", qty: 12 }, { band: "250–500 Mbps", qty: 5 }, { band: "500 Mbps–1 Gbps", qty: 0 }, { band: "1 Gbps+", qty: 0 }], confidence: "Verified", owner: "Karen Nguyen", notes: "AT&T contract — non-renew Dec 2026" },
-    { id: 3, name: "Broadband", category: "Broadband", status: "Active", qty: 12, siteCt: 12, regionCt: 1, mrr: 8, contractId: "CTR-2024-BB", circuits: ["Broadband"], bwDist: [{ band: "<50 Mbps", qty: 0 }, { band: "50–100 Mbps", qty: 0 }, { band: "100–250 Mbps", qty: 8 }, { band: "250–500 Mbps", qty: 4 }, { band: "500 Mbps–1 Gbps", qty: 0 }, { band: "1 Gbps+", qty: 0 }], confidence: "Verified", owner: "Karen Nguyen", notes: "NorthStar Wealth greenfield sites" },
-    { id: 4, name: "SD-WAN (Managed)", category: "SD-WAN", status: "Pilot", qty: 8, siteCt: 8, regionCt: 1, mrr: 12, contractId: "CTR-2025-SDWAN", circuits: ["Internet + LTE"], bwDist: [{ band: "<50 Mbps", qty: 0 }, { band: "50–100 Mbps", qty: 0 }, { band: "100–250 Mbps", qty: 6 }, { band: "250–500 Mbps", qty: 2 }, { band: "500 Mbps–1 Gbps", qty: 0 }, { band: "1 Gbps+", qty: 0 }], confidence: "Verified", owner: "Karen Nguyen", notes: "NE pilot — FortiGate 60F" },
-    { id: 5, name: "SIP / Voice", category: "SIP / Voice", status: "Active", qty: 35, siteCt: 35, regionCt: 4, mrr: 22, contractId: "CTR-2023-SIP", circuits: ["SIP Transport"], bwDist: [], confidence: "Verified", owner: "Karen Nguyen", notes: "" },
-    { id: 6, name: "Cloud Connect (AWS)", category: "Cloud Connect", status: "Active", qty: 2, siteCt: 2, regionCt: 1, mrr: 18, contractId: "CTR-2024-CC", circuits: ["Cloud Interconnect"], bwDist: [{ band: "<50 Mbps", qty: 0 }, { band: "50–100 Mbps", qty: 0 }, { band: "100–250 Mbps", qty: 0 }, { band: "250–500 Mbps", qty: 0 }, { band: "500 Mbps–1 Gbps", qty: 1 }, { band: "1 Gbps+", qty: 1 }], confidence: "Verified", owner: "Rachel Patel", notes: "Dallas DC + Ashburn DC" },
-    { id: 7, name: "LTE Backup", category: "LTE / Wireless", status: "Active", qty: 35, siteCt: 35, regionCt: 3, mrr: 8, contractId: "CTR-2024-LTE", circuits: ["LTE / 5G"], bwDist: [], confidence: "Estimated", owner: "Karen Nguyen", notes: "Verizon + T-Mobile mix" },
-    { id: 8, name: "EnvisionDX", category: "EnvisionDX", status: "Pilot", qty: 8, siteCt: 8, regionCt: 1, mrr: 4, contractId: "PILOT-EDX", circuits: ["DIA"], bwDist: [], confidence: "Verified", owner: "Steve Morrison", notes: "Monitoring overlay — NE pilot sites" },
-    { id: 9, name: "Security / SASE", category: "Security / SASE", status: "Pending", qty: 0, siteCt: 0, regionCt: 0, mrr: 0, contractId: "", circuits: [], bwDist: [], confidence: "Unvalidated", owner: "", notes: "No GTT security services — identified gap" },
-    { id: 10, name: "Cloud Connect (Azure)", category: "Cloud Connect", status: "Pending", qty: 0, siteCt: 0, regionCt: 0, mrr: 0, contractId: "", circuits: ["Cloud Interconnect"], bwDist: [], confidence: "Unvalidated", owner: "", notes: "ExpressRoute not yet sold — adjacency signal" },
+    { id: 1, name: "DIA", category: "DIA", status: "Active", enabled: true, qty: 44, siteCt: 42, regionCt: 5, mrr: 56, contractId: "CTR-2024-DIA", circuits: ["DIA"], bwDist: [{ band: "<50 Mbps", qty: 0 }, { band: "50–100 Mbps", qty: 18 }, { band: "100–250 Mbps", qty: 16 }, { band: "250–500 Mbps", qty: 6 }, { band: "500 Mbps–1 Gbps", qty: 2 }, { band: "1 Gbps+", qty: 2 }], confidence: "Verified", owner: "Karen Nguyen", notes: "" },
+    { id: 2, name: "MPLS", category: "MPLS", status: "Active", enabled: true, qty: 87, siteCt: 87, regionCt: 6, mrr: 175, contractId: "CTR-2022-MPLS", circuits: ["MPLS"], bwDist: [{ band: "<50 Mbps", qty: 22 }, { band: "50–100 Mbps", qty: 48 }, { band: "100–250 Mbps", qty: 12 }, { band: "250–500 Mbps", qty: 5 }, { band: "500 Mbps–1 Gbps", qty: 0 }, { band: "1 Gbps+", qty: 0 }], confidence: "Verified", owner: "Karen Nguyen", notes: "AT&T contract — non-renew Dec 2026" },
+    { id: 3, name: "Broadband", category: "Broadband", status: "Active", enabled: true, qty: 12, siteCt: 12, regionCt: 1, mrr: 8, contractId: "CTR-2024-BB", circuits: ["Broadband"], bwDist: [{ band: "<50 Mbps", qty: 0 }, { band: "50–100 Mbps", qty: 0 }, { band: "100–250 Mbps", qty: 8 }, { band: "250–500 Mbps", qty: 4 }, { band: "500 Mbps–1 Gbps", qty: 0 }, { band: "1 Gbps+", qty: 0 }], confidence: "Verified", owner: "Karen Nguyen", notes: "NorthStar Wealth greenfield sites" },
+    { id: 4, name: "SD-WAN (Managed)", category: "SD-WAN", status: "Pilot", enabled: true, qty: 8, siteCt: 8, regionCt: 1, mrr: 12, contractId: "CTR-2025-SDWAN", circuits: ["Internet + LTE"], bwDist: [{ band: "<50 Mbps", qty: 0 }, { band: "50–100 Mbps", qty: 0 }, { band: "100–250 Mbps", qty: 6 }, { band: "250–500 Mbps", qty: 2 }, { band: "500 Mbps–1 Gbps", qty: 0 }, { band: "1 Gbps+", qty: 0 }], confidence: "Verified", owner: "Karen Nguyen", notes: "NE pilot — FortiGate 60F" },
+    { id: 5, name: "SIP / Voice", category: "SIP / Voice", status: "Active", enabled: true, qty: 35, siteCt: 35, regionCt: 4, mrr: 22, contractId: "CTR-2023-SIP", circuits: ["SIP Transport"], bwDist: [], confidence: "Verified", owner: "Karen Nguyen", notes: "" },
+    { id: 6, name: "Cloud Connect (AWS)", category: "Cloud Connect", status: "Active", enabled: true, qty: 2, siteCt: 2, regionCt: 1, mrr: 18, contractId: "CTR-2024-CC", circuits: ["Cloud Interconnect"], bwDist: [{ band: "<50 Mbps", qty: 0 }, { band: "50–100 Mbps", qty: 0 }, { band: "100–250 Mbps", qty: 0 }, { band: "250–500 Mbps", qty: 0 }, { band: "500 Mbps–1 Gbps", qty: 1 }, { band: "1 Gbps+", qty: 1 }], confidence: "Verified", owner: "Rachel Patel", notes: "Dallas DC + Ashburn DC" },
+    { id: 7, name: "LTE Backup", category: "LTE / Wireless", status: "Active", enabled: true, qty: 35, siteCt: 35, regionCt: 3, mrr: 8, contractId: "CTR-2024-LTE", circuits: ["LTE / 5G"], bwDist: [], confidence: "Estimated", owner: "Karen Nguyen", notes: "Verizon + T-Mobile mix" },
+    { id: 8, name: "EnvisionDX", category: "EnvisionDX", status: "Pilot", enabled: true, qty: 8, siteCt: 8, regionCt: 1, mrr: 4, contractId: "PILOT-EDX", circuits: ["DIA"], bwDist: [], confidence: "Verified", owner: "Steve Morrison", notes: "Monitoring overlay — NE pilot sites" },
+    { id: 9, name: "Security / SASE", category: "Security / SASE", status: "Pending", enabled: true, qty: 0, siteCt: 0, regionCt: 0, mrr: 0, contractId: "", circuits: [], bwDist: [], confidence: "Unvalidated", owner: "", notes: "No GTT security services — identified gap" },
+    { id: 10, name: "Cloud Connect (Azure)", category: "Cloud Connect", status: "Pending", enabled: true, qty: 0, siteCt: 0, regionCt: 0, mrr: 0, contractId: "", circuits: ["Cloud Interconnect"], bwDist: [], confidence: "Unvalidated", owner: "", notes: "ExpressRoute not yet sold — adjacency signal" },
   ]); var svcs = _svcs[0]; var setSvcs = _svcs[1];
 
   /* ── Regions ── */
@@ -227,23 +227,31 @@ function FootprintView({ onNav }) {
       {/* Service rows */}
       <div style={{ padding: "6px 18px" }}>
         {svcs.map(function (s, i) {
+          var on = s.enabled !== false;
           var sc = statusColor(s.status);
           var cc = confColor(s.confidence);
           var isExp = expSvc === s.id;
+          var dim = !on ? { opacity: 0.35, pointerEvents: "none" } : {};
           return (<div key={s.id} style={{ borderBottom: i < svcs.length - 1 ? "1px solid " + T.border : "none" }}>
-            <div onClick={function () { setExpSvc(isExp ? null : s.id); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0", cursor: "pointer" }}>
-              <span style={{ fontSize: 9, color: T.td, transform: isExp ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.15s" }}>▶</span>
-              <span style={{ fontFamily: T.m, fontSize: 9, color: sc, background: sc + "12", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase", width: 58, textAlign: "center", flexShrink: 0 }}>{s.status}</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{s.name}</div>
-                <div style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>{s.category} · {s.siteCt} sites · {s.qty} qty · {(s.circuits || []).join(", ")}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0" }}>
+              {/* Toggle */}
+              <div onClick={function (e) { e.stopPropagation(); updSvc(s.id, "enabled", !on); }} style={{ width: 32, height: 18, borderRadius: 9, background: on ? T.green : T.border, cursor: "pointer", position: "relative", flexShrink: 0, transition: "background 0.2s" }}>
+                <div style={{ width: 14, height: 14, borderRadius: 7, background: "#fff", position: "absolute", top: 2, left: on ? 16 : 2, transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.15)" }} />
               </div>
-              <span style={{ fontFamily: T.m, fontSize: 8, color: cc, background: cc + "12", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase", flexShrink: 0 }}>{s.confidence}</span>
-              <span style={{ fontFamily: T.m, fontSize: 11, fontWeight: 600, color: s.mrr > 0 ? T.tp : T.td, width: 55, textAlign: "right", flexShrink: 0 }}>{s.mrr > 0 ? "$" + s.mrr + "K" : "—"}</span>
+              <div onClick={function () { if (on) setExpSvc(isExp ? null : s.id); }} style={Object.assign({ display: "flex", alignItems: "center", gap: 10, flex: 1, cursor: on ? "pointer" : "default" }, dim)}>
+                <span style={{ fontSize: 9, color: T.td, transform: isExp ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.15s" }}>▶</span>
+                <span style={{ fontFamily: T.m, fontSize: 9, color: sc, background: sc + "12", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase", width: 58, textAlign: "center", flexShrink: 0 }}>{s.status}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{s.name}</div>
+                  <div style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>{s.category} · {s.siteCt} sites · {s.qty} qty · {(s.circuits || []).join(", ")}</div>
+                </div>
+                <span style={{ fontFamily: T.m, fontSize: 8, color: cc, background: cc + "12", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase", flexShrink: 0 }}>{s.confidence}</span>
+                <span style={{ fontFamily: T.m, fontSize: 11, fontWeight: 600, color: s.mrr > 0 ? T.tp : T.td, width: 55, textAlign: "right", flexShrink: 0 }}>{s.mrr > 0 ? "$" + s.mrr + "K" : "—"}</span>
+              </div>
             </div>
 
             {/* Expanded detail / edit */}
-            {isExp && (<div style={{ padding: "0 0 12px 27px" }}>
+            {isExp && on && (<div style={{ padding: "0 0 12px 42px" }}>
               <div style={{ display: "flex", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
                 {isPrep ? (<>
                   <div style={{ width: 60 }}><label style={lbl}>Qty</label><input type="number" value={s.qty} onChange={function (e) { updSvc(s.id, "qty", Number(e.target.value) || 0); }} style={Object.assign({}, smI, { textAlign: "center", width: "100%" })} /></div>
