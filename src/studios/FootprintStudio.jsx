@@ -66,16 +66,19 @@ function FootprintView({ onNav }) {
   ]); var contracts = _contracts[0]; var setContracts = _contracts[1];
 
   /* ── Gaps ── */
-  var gaps = [
-    { label: "Security / SASE — zero GTT presence", type: "Service Gap", severity: "critical" },
-    { label: "NorthStar Wealth — 12 sites, no GTT services", type: "Coverage Gap", severity: "critical" },
-    { label: "Pinnacle Insurance — single-product (MPLS only)", type: "Low Penetration", severity: "high" },
-    { label: "Azure ExpressRoute — not sold", type: "Adjacency", severity: "high" },
-    { label: "SD-WAN pilot — 8 sites, not converted to production", type: "Unconverted Pilot", severity: "high" },
-    { label: "EnvisionDX pilot — not expanded beyond NE", type: "Unconverted Pilot", severity: "medium" },
-    { label: "Canada — no LTE backup deployed (22 sites)", type: "Service Gap", severity: "medium" },
-    { label: "Midwest / West — limited service diversity", type: "Low Penetration", severity: "medium" },
-  ];
+  var _gaps = useState([
+    { id: 1, label: "Security / SASE — zero GTT presence", type: "Service Gap", severity: "critical", notes: "" },
+    { id: 2, label: "NorthStar Wealth — 12 sites, no GTT services", type: "Coverage Gap", severity: "critical", notes: "" },
+    { id: 3, label: "Pinnacle Insurance — single-product (MPLS only)", type: "Low Penetration", severity: "high", notes: "" },
+    { id: 4, label: "Azure ExpressRoute — not sold", type: "Adjacency", severity: "high", notes: "" },
+    { id: 5, label: "SD-WAN pilot — 8 sites, not converted to production", type: "Unconverted Pilot", severity: "high", notes: "" },
+    { id: 6, label: "EnvisionDX pilot — not expanded beyond NE", type: "Unconverted Pilot", severity: "medium", notes: "" },
+    { id: 7, label: "Canada — no LTE backup deployed (22 sites)", type: "Service Gap", severity: "medium", notes: "" },
+    { id: 8, label: "Midwest / West — limited service diversity", type: "Low Penetration", severity: "medium", notes: "" },
+  ]); var gaps = _gaps[0]; var setGaps = _gaps[1];
+  var GAP_TYPES = ["Service Gap", "Coverage Gap", "Low Penetration", "Adjacency", "Unconverted Pilot", "Missing Overlay", "Other"];
+  var GAP_SEV = ["critical", "high", "medium", "low"];
+  function updGap(id, f, v) { setGaps(gaps.map(function (g) { return g.id === id ? Object.assign({}, g, (function () { var o = {}; o[f] = v; return o; })()) : g; })); }
 
   /* ── Add service form ── */
   var _showAdd = useState(false); var showAdd = _showAdd[0]; var setShowAdd = _showAdd[1];
@@ -132,6 +135,9 @@ function FootprintView({ onNav }) {
 
   var sevColor = function (s) { return s === "critical" ? T.red : s === "high" ? T.amber : T.blue; };
   var ctrStatusColor = function (s) { return s === "Healthy" ? T.green : s === "At Risk" ? T.red : s === "Pilot" ? T.cyan : T.td; };
+  var CTR_STATUSES = ["Healthy", "At Risk", "Pilot", "Pending"];
+  function updCtr(id, f, v) { setContracts(contracts.map(function (c) { return c.id === id ? Object.assign({}, c, (function () { var o = {}; o[f] = v; return o; })()) : c; })); }
+  function updReg(id, f, v) { setRegions(regions.map(function (r) { return r.id === id ? Object.assign({}, r, (function () { var o = {}; o[f] = v; return o; })()) : r; })); }
 
   return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -340,57 +346,131 @@ function FootprintView({ onNav }) {
     </div>
 
     {/* ═══ ROW 4: Presence & Coverage ═══ */}
-    <Disc tag="PRESENCE & COVERAGE" tagColor={T.blue} title="GTT presence by region" summary={regions.length + " regions · " + gttSites + " GTT-enabled sites"} defaultOpen={true}>
-      {regions.map(function (r, i) {
-        return (<div key={r.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: i < regions.length - 1 ? "1px solid " + T.border : "none" }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{r.name}</span>
-              {r.entity === "Acquired" && <span style={{ fontFamily: T.m, fontSize: 8, color: T.amber, background: T.amber + "12", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase" }}>Acquired</span>}
-            </div>
-            <div style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>{r.gttSites}/{r.sites} sites · {r.services.length > 0 ? r.services.join(", ") : "No GTT services"}</div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-            <div style={{ width: 80, height: 6, borderRadius: 3, background: T.border, overflow: "hidden" }}>
-              <div style={{ width: r.penetration + "%", height: "100%", background: penColor(r.penetration), borderRadius: 3 }} />
-            </div>
-            <span style={{ fontFamily: T.m, fontSize: 10, fontWeight: 600, color: penColor(r.penetration), width: 32, textAlign: "right" }}>{r.penetration}%</span>
-          </div>
-        </div>);
-      })}
-    </Disc>
+    <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, overflow: "hidden" }}>
+      <div style={{ padding: "14px 18px", borderBottom: "1px solid " + T.border, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <span style={{ fontFamily: T.m, fontSize: 9, color: T.blue, background: T.blue + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>PRESENCE & COVERAGE</span>
+          <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 5 }}>{regions.length} regions · {gttSites} GTT-enabled sites</div>
+        </div>
+        {isPrep && <button onClick={function () { setRegions(regions.concat([{ id: Date.now(), name: "New Region", sites: 0, gttSites: 0, services: [], entity: "Core", penetration: 0 }])); }} style={{ fontFamily: T.f, fontSize: 10, color: "#fff", background: T.blue, border: "none", borderRadius: 5, padding: "5px 12px", cursor: "pointer" }}>+ Add Region</button>}
+      </div>
+      <div style={{ padding: "6px 18px" }}>
+        {regions.map(function (r, i) {
+          return (<div key={r.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: i < regions.length - 1 ? "1px solid " + T.border : "none", flexWrap: isPrep ? "wrap" : "nowrap" }}>
+            {isPrep ? (<>
+              <input value={r.name} onChange={function (e) { updReg(r.id, "name", e.target.value); }} style={Object.assign({}, smI, { width: 140, fontSize: 11, fontWeight: 600 })} />
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <label style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>Sites</label>
+                <input type="number" value={r.sites} onChange={function (e) { updReg(r.id, "sites", Number(e.target.value) || 0); }} style={Object.assign({}, smI, { width: 44, textAlign: "center", fontSize: 10 })} />
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <label style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>GTT</label>
+                <input type="number" value={r.gttSites} onChange={function (e) { updReg(r.id, "gttSites", Number(e.target.value) || 0); }} style={Object.assign({}, smI, { width: 44, textAlign: "center", fontSize: 10 })} />
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <label style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>Pen%</label>
+                <input type="number" min={0} max={100} value={r.penetration} onChange={function (e) { updReg(r.id, "penetration", Math.min(100, Math.max(0, Number(e.target.value) || 0))); }} style={Object.assign({}, smI, { width: 44, textAlign: "center", fontSize: 10 })} />
+              </div>
+              <select value={r.entity} onChange={function (e) { updReg(r.id, "entity", e.target.value); }} style={Object.assign({}, selS, { fontSize: 9 })}>{["Core", "Acquired", "Partner", "Greenfield"].map(function (o) { return <option key={o} value={o}>{o}</option>; })}</select>
+              <button onClick={function () { setRegions(regions.filter(function (x) { return x.id !== r.id; })); }} style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 10, marginLeft: "auto" }}>✕</button>
+            </>) : (<>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{r.name}</span>
+                  {r.entity === "Acquired" && <span style={{ fontFamily: T.m, fontSize: 8, color: T.amber, background: T.amber + "12", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase" }}>Acquired</span>}
+                </div>
+                <div style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>{r.gttSites}/{r.sites} sites · {r.services.length > 0 ? r.services.join(", ") : "No GTT services"}</div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                <div style={{ width: 80, height: 6, borderRadius: 3, background: T.border, overflow: "hidden" }}>
+                  <div style={{ width: r.penetration + "%", height: "100%", background: penColor(r.penetration), borderRadius: 3 }} />
+                </div>
+                <span style={{ fontFamily: T.m, fontSize: 10, fontWeight: 600, color: penColor(r.penetration), width: 32, textAlign: "right" }}>{r.penetration}%</span>
+              </div>
+            </>)}
+          </div>);
+        })}
+      </div>
+    </div>
 
     {/* ═══ ROW 5: Contracts ═══ */}
-    <Disc tag="CONTRACT & RENEWAL EXPOSURE" tagColor={T.amber} title="Commercial baseline" summary={contracts.length + " contracts · " + contracts.filter(function (c) { return c.status === "At Risk"; }).length + " at risk · " + contracts.filter(function (c) { return c.status === "Pilot"; }).length + " pilots"}>
-      {contracts.map(function (c, i) {
-        var sc = ctrStatusColor(c.status);
-        return (<div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0", borderBottom: i < contracts.length - 1 ? "1px solid " + T.border : "none" }}>
-          <span style={{ fontFamily: T.m, fontSize: 9, color: sc, background: sc + "12", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase", width: 50, textAlign: "center", flexShrink: 0 }}>{c.status}</span>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{c.name}</div>
-            <div style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>{c.service} · {c.term} · Renewal: {c.renewal}{c.notes ? " · " + c.notes : ""}</div>
-          </div>
-          <div style={{ textAlign: "right", flexShrink: 0 }}>
-            <div style={{ fontFamily: T.m, fontSize: 11, fontWeight: 600, color: T.tp }}>{c.value}</div>
-            <div style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>{c.sites} sites</div>
-          </div>
-        </div>);
-      })}
-    </Disc>
+    <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, overflow: "hidden" }}>
+      <div style={{ padding: "14px 18px", borderBottom: "1px solid " + T.border, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <span style={{ fontFamily: T.m, fontSize: 9, color: T.amber, background: T.amber + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>CONTRACT & RENEWAL EXPOSURE</span>
+          <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 5 }}>{contracts.length} contracts · {contracts.filter(function (c) { return c.status === "At Risk"; }).length} at risk · {contracts.filter(function (c) { return c.status === "Pilot"; }).length} pilots</div>
+        </div>
+        {isPrep && <button onClick={function () { setContracts(contracts.concat([{ id: Date.now(), name: "", service: "", value: "", term: "", renewal: "", status: "Healthy", sites: 0, notes: "" }])); }} style={{ fontFamily: T.f, fontSize: 10, color: "#fff", background: T.amber, border: "none", borderRadius: 5, padding: "5px 12px", cursor: "pointer" }}>+ Add Contract</button>}
+      </div>
+      <div style={{ padding: "6px 18px" }}>
+        {contracts.map(function (c, i) {
+          var sc = ctrStatusColor(c.status);
+          return (<div key={c.id} style={{ padding: "10px 0", borderBottom: i < contracts.length - 1 ? "1px solid " + T.border : "none" }}>
+            {isPrep ? (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end" }}>
+                <div style={{ flex: 2, minWidth: 120 }}><label style={lbl}>Contract Name</label><input value={c.name} onChange={function (e) { updCtr(c.id, "name", e.target.value); }} style={Object.assign({}, smI, { width: "100%", fontSize: 11, fontWeight: 600 })} /></div>
+                <div style={{ flex: 1, minWidth: 80 }}><label style={lbl}>Service</label><input value={c.service} onChange={function (e) { updCtr(c.id, "service", e.target.value); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10 })} /></div>
+                <div style={{ width: 80 }}><label style={lbl}>Value</label><input value={c.value} onChange={function (e) { updCtr(c.id, "value", e.target.value); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10 })} /></div>
+                <div style={{ width: 65 }}><label style={lbl}>Term</label><input value={c.term} onChange={function (e) { updCtr(c.id, "term", e.target.value); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10 })} /></div>
+                <div style={{ width: 80 }}><label style={lbl}>Renewal</label><input value={c.renewal} onChange={function (e) { updCtr(c.id, "renewal", e.target.value); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10 })} /></div>
+                <div style={{ width: 75 }}><label style={lbl}>Status</label><select value={c.status} onChange={function (e) { updCtr(c.id, "status", e.target.value); }} style={Object.assign({}, selS, { width: "100%", fontSize: 9 })}>{CTR_STATUSES.map(function (o) { return <option key={o} value={o}>{o}</option>; })}</select></div>
+                <div style={{ width: 50 }}><label style={lbl}>Sites</label><input type="number" value={c.sites} onChange={function (e) { updCtr(c.id, "sites", Number(e.target.value) || 0); }} style={Object.assign({}, smI, { width: "100%", fontSize: 10, textAlign: "center" })} /></div>
+                <div style={{ flex: 2, minWidth: 120 }}><label style={lbl}>Notes</label><input value={c.notes} onChange={function (e) { updCtr(c.id, "notes", e.target.value); }} placeholder="Notes..." style={Object.assign({}, smI, { width: "100%", fontSize: 10 })} /></div>
+                <button onClick={function () { setContracts(contracts.filter(function (x) { return x.id !== c.id; })); }} style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 10, marginBottom: 4 }}>✕</button>
+              </div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontFamily: T.m, fontSize: 9, color: sc, background: sc + "12", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase", width: 50, textAlign: "center", flexShrink: 0 }}>{c.status}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{c.name}</div>
+                  <div style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>{c.service} · {c.term} · Renewal: {c.renewal}{c.notes ? " · " + c.notes : ""}</div>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <div style={{ fontFamily: T.m, fontSize: 11, fontWeight: 600, color: T.tp }}>{c.value}</div>
+                  <div style={{ fontFamily: T.f, fontSize: 9, color: T.td }}>{c.sites} sites</div>
+                </div>
+              </div>
+            )}
+          </div>);
+        })}
+      </div>
+    </div>
 
     {/* ═══ ROW 6: Baseline Gaps ═══ */}
-    <Disc tag="BASELINE GAPS & ADJACENCY SIGNALS" tagColor={T.red} title="Identified gaps in current baseline" summary={gaps.length + " gaps — " + gaps.filter(function (g) { return g.severity === "critical"; }).length + " critical"}>
-      {gaps.map(function (g, i) {
-        var sc = sevColor(g.severity);
-        return (<div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: i < gaps.length - 1 ? "1px solid " + T.border : "none" }}>
-          <span style={{ fontFamily: T.m, fontSize: 9, color: sc, background: sc + "12", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase", flexShrink: 0 }}>{g.severity}</span>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: T.f, fontSize: 12, color: T.tp }}>{g.label}</div>
-            <span style={{ fontFamily: T.m, fontSize: 9, color: T.td, marginTop: 2 }}>{g.type}</span>
-          </div>
-        </div>);
-      })}
-    </Disc>
+    <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, overflow: "hidden" }}>
+      <div style={{ padding: "14px 18px", borderBottom: "1px solid " + T.border, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <span style={{ fontFamily: T.m, fontSize: 9, color: T.red, background: T.red + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>BASELINE GAPS & ADJACENCY SIGNALS</span>
+          <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 5 }}>{gaps.length} gaps — {gaps.filter(function (g) { return g.severity === "critical"; }).length} critical</div>
+        </div>
+        {isPrep && <button onClick={function () { setGaps(gaps.concat([{ id: Date.now(), label: "", type: "Service Gap", severity: "medium", notes: "" }])); }} style={{ fontFamily: T.f, fontSize: 10, color: "#fff", background: T.red, border: "none", borderRadius: 5, padding: "5px 12px", cursor: "pointer" }}>+ Add Gap</button>}
+      </div>
+      <div style={{ padding: "6px 18px" }}>
+        {gaps.map(function (g, i) {
+          var sc = sevColor(g.severity);
+          return (<div key={g.id} style={{ padding: "10px 0", borderBottom: i < gaps.length - 1 ? "1px solid " + T.border : "none" }}>
+            {isPrep ? (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end" }}>
+                <div style={{ flex: 3, minWidth: 180 }}><label style={lbl}>Gap Description</label><input value={g.label} onChange={function (e) { updGap(g.id, "label", e.target.value); }} style={Object.assign({}, smI, { width: "100%", fontSize: 11 })} /></div>
+                <div style={{ width: 110 }}><label style={lbl}>Type</label><select value={g.type} onChange={function (e) { updGap(g.id, "type", e.target.value); }} style={Object.assign({}, selS, { width: "100%", fontSize: 9 })}>{GAP_TYPES.map(function (o) { return <option key={o} value={o}>{o}</option>; })}</select></div>
+                <div style={{ width: 80 }}><label style={lbl}>Severity</label><select value={g.severity} onChange={function (e) { updGap(g.id, "severity", e.target.value); }} style={Object.assign({}, selS, { width: "100%", fontSize: 9 })}>{GAP_SEV.map(function (o) { return <option key={o} value={o}>{o.charAt(0).toUpperCase() + o.slice(1)}</option>; })}</select></div>
+                <div style={{ flex: 2, minWidth: 120 }}><label style={lbl}>Notes</label><input value={g.notes} onChange={function (e) { updGap(g.id, "notes", e.target.value); }} placeholder="Notes..." style={Object.assign({}, smI, { width: "100%", fontSize: 10 })} /></div>
+                <button onClick={function () { setGaps(gaps.filter(function (x) { return x.id !== g.id; })); }} style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 10, marginBottom: 4 }}>✕</button>
+              </div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                <span style={{ fontFamily: T.m, fontSize: 9, color: sc, background: sc + "12", padding: "2px 6px", borderRadius: 3, textTransform: "uppercase", flexShrink: 0 }}>{g.severity}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: T.f, fontSize: 12, color: T.tp }}>{g.label}</div>
+                  <span style={{ fontFamily: T.m, fontSize: 9, color: T.td, marginTop: 2 }}>{g.type}</span>
+                </div>
+              </div>
+            )}
+          </div>);
+        })}
+        {!gaps.length && <div style={{ padding: 16, textAlign: "center", fontFamily: T.f, fontSize: 12, color: T.td, fontStyle: "italic" }}>No gaps identified</div>}
+      </div>
+    </div>
 
     {/* ═══ ROW 7: Recommended Next Studios ═══ */}
     {onNav && (<div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
