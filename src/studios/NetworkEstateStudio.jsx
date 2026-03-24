@@ -176,6 +176,13 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
           <div style={{ fontFamily: T.m, fontSize: 9, color: T.blue, letterSpacing: 1.2, textTransform: "uppercase" }}>SITE TYPES</div>
           <button onClick={function () { setSites(sites.concat([{ id: Date.now(), region: "", type: "Branch", count: 0, states: "", circuit: "MPLS", bandwidth: "100 Mbps", provider: "", notes: "" }])); }} style={{ fontFamily: T.f, fontSize: 9, color: T.blue, background: "none", border: "1px dashed " + T.blue + "44", borderRadius: 4, padding: "3px 8px", cursor: "pointer" }}>+ Add</button>
         </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 6, borderBottom: "2px solid " + T.border, marginBottom: 4 }}>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8 }}>Type</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8, width: 56, textAlign: "center" }}>Count</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8 }}>Circuit</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8 }}>Bandwidth</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8, flex: 1 }}></span>
+        </div>
         {sites.map(function (s, i) {
           return (<div key={s.id} style={{ padding: "8px 0", borderBottom: i < sites.length - 1 ? "1px solid " + T.border : "none" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -195,6 +202,15 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
           <div style={{ fontFamily: T.m, fontSize: 9, color: T.amber, letterSpacing: 1.2, textTransform: "uppercase" }}>WAN PROVIDERS</div>
           <button onClick={function () { setProviders(providers.concat([{ id: Date.now(), name: "Select Provider", type: "MPLS", sites: 0, cost: "", expiry: "", action: "Evaluate" }])); }} style={{ fontFamily: T.f, fontSize: 9, color: T.amber, background: "none", border: "1px dashed " + T.amber + "44", borderRadius: 4, padding: "3px 8px", cursor: "pointer" }}>+ Add Provider</button>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, paddingBottom: 6, borderBottom: "2px solid " + T.border, marginBottom: 4 }}>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8, width: 120 }}>Provider</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8 }}>Type</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8, width: 44, textAlign: "center" }}>Sites</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8, width: 70 }}>Cost</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8, width: 65 }}>Expiry</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8 }}>Action</span>
+          <span style={{ width: 18 }}></span>
         </div>
         {providers.map(function (p, i) {
           return (<div key={p.id} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 0", borderBottom: i < providers.length - 1 ? "1px solid " + T.border : "none" }}>
@@ -311,6 +327,12 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
           <div style={{ fontFamily: T.m, fontSize: 9, color: T.teal, letterSpacing: 1.2, textTransform: "uppercase" }}>GTT WAN SOLUTION FIT</div>
           <button onClick={function () { setSolutions(solutions.concat([{ id: Date.now(), issue: "", solution: "Managed SD-WAN", confidence: "Medium", note: "" }])); }} style={{ fontFamily: T.f, fontSize: 9, color: T.teal, background: "none", border: "1px dashed " + T.teal + "44", borderRadius: 4, padding: "3px 8px", cursor: "pointer" }}>+ Add</button>
         </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 6, borderBottom: "2px solid " + T.border, marginBottom: 4 }}>
+          <span style={{ width: 14 }}></span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8, flex: 1 }}>Issue / Requirement</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8 }}>GTT Solution</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8 }}>Confidence</span>
+        </div>
         {solutions.map(function (s, i) {
           var cc = s.confidence === "High" ? T.green : s.confidence === "Medium" ? T.amber : T.red;
           var isExp = expSol === s.id;
@@ -336,7 +358,12 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
 
       {/* WAN Modernization Path */}
       <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
-        <div style={{ fontFamily: T.m, fontSize: 9, color: T.violet, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>WAN MODERNIZATION PATH</div>
+        <div style={{ fontFamily: T.m, fontSize: 9, color: T.violet, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 8 }}>WAN MODERNIZATION PATH</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 6, borderBottom: "2px solid " + T.border, marginBottom: 4 }}>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8, flex: 1 }}>Theme</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8 }}>Phase</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: T.td, textTransform: "uppercase", letterSpacing: 0.8 }}>Confidence</span>
+        </div>
         {[
           { theme: "MPLS elimination → Managed SD-WAN", phase: "Phase 1", conf: "High" },
           { theme: "Branch resiliency → LTE/5G backup", phase: "Phase 1", conf: "High" },
