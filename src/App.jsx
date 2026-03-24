@@ -367,18 +367,395 @@ function CmdCenter({ onNav, stats }) {
 }
 
 /* ═══════ EXECUTIVE STUDIO ═══════ */
-function ExecView() {
-  const _d = useState([{ id: "rev", label: "Revenue Growth", color: T.green, on: true }, { id: "cost", label: "Cost Optimization", color: T.amber, on: true }, { id: "sec", label: "Security & Compliance", color: T.red, on: true }, { id: "cloud", label: "Cloud Acceleration", color: T.violet, on: true }, { id: "ai", label: "AI/ML Readiness", color: T.cyan, on: true }, { id: "ma", label: "M&A Integration", color: T.violet, on: false }, { id: "branch", label: "Branch Simplification", color: T.slate, on: false }]); const drivers = _d[0]; const setDrivers = _d[1];
-  const _nr = useState("CTO mandate: cloud-first + zero trust by FY27. Pinnacle & NorthStar need integration."); const nar = _nr[0]; const setNar = _nr[1];
-  const _am = useState(7); const amb = _am[0]; const setAmb = _am[1];
-  return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}><SecHead s={SECS.find(function(x){return x.id==="executive";})} />
-    <PrimaryCard tag="STRATEGIC DRIVERS" tagColor={T.green} title="Toggle active business drivers"><div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>{drivers.map(function (d) { return (<button key={d.id} onClick={function () { setDrivers(drivers.map(function (x) { return x.id === d.id ? Object.assign({}, x, { on: !x.on }) : x; })); }} style={{ fontFamily: T.f, fontSize: 11, padding: "5px 12px", borderRadius: 16, border: "1.5px solid " + (d.on ? d.color : T.border), background: d.on ? d.color + "12" : "transparent", color: d.on ? d.color : T.td, cursor: "pointer" }}>{d.on ? "● " : "○ "}{d.label}</button>); })}</div></PrimaryCard>
-    <Nts tag="WHAT CHANGED?" tc={T.amber} title="Transformation Trigger" sub="Why now?" value={nar} onChange={setNar} rows={3} />
-    <Disc tag="RISK ASSESSMENT" tagColor={T.red} title="Business risks" summary="4 risks identified — 1 critical, 2 high">
-      {[{ l: "Legacy MPLS Dependencies", s: "critical" }, { l: "M&A Network Integration", s: "high" }, { l: "Security Fragmentation", s: "high" }, { l: "Regulatory Gap", s: "medium" }].map(function (r, i) { return <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: i < 3 ? "1px solid " + T.border : "none" }}><span style={{ fontFamily: T.f, fontSize: 12, color: T.ts }}>{r.l}</span><Sev s={r.s} /></div>; })}
+
+/* Scope / follow-up shared controls */
+var SCOPE_OPTS = ["Focus Now", "Park", "Out of Scope"];
+var FOLLOWUP_OPTS = ["No Follow-Up", "Owner Not Present", "Needs GTT Follow-Up", "Customer Validation Needed", "Schedule Session", "Executive Alignment Needed", "Future Phase"];
+function scopeColor(s) { return s === "Focus Now" ? T.green : s === "Park" ? T.amber : T.td; }
+function followColor(f) { return f === "No Follow-Up" ? T.td : f === "Owner Not Present" ? T.amber : f === "Schedule Session" ? T.violet : f === "Executive Alignment Needed" ? T.red : T.cyan; }
+
+/* Reusable topic row with scope + follow-up + notes */
+function TopicRow({ t, onUpdate, onRemove }) {
+  var _exp = useState(false); var expanded = _exp[0]; var setExpanded = _exp[1];
+  var sc = scopeColor(t.scope);
+  return (<div style={{ padding: "10px 0", borderBottom: "1px solid " + T.border }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+      <span onClick={function () { setExpanded(!expanded); }} style={{ fontSize: 9, color: T.td, cursor: "pointer", transform: expanded ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.15s" }}>▶</span>
+      <div style={{ flex: 1, minWidth: 140 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{t.label}</span>
+          <span style={{ fontFamily: T.m, fontSize: 8, color: t.confirmed ? T.green : T.td, background: (t.confirmed ? T.green : T.td) + "12", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase", cursor: "pointer" }} onClick={function () { onUpdate("confirmed", !t.confirmed); }}>{t.confirmed ? "Confirmed" : "Suggested"}</span>
+        </div>
+        {t.description && !expanded && <div style={{ fontFamily: T.f, fontSize: 10, color: T.td, marginTop: 1 }}>{t.description}</div>}
+      </div>
+      <select value={t.scope} onChange={function (e) { onUpdate("scope", e.target.value); }} style={Object.assign({}, selS, { fontSize: 9, color: sc, borderColor: sc + "44" })}>
+        {SCOPE_OPTS.map(function (o) { return <option key={o} value={o}>{o}</option>; })}
+      </select>
+      <select value={t.followUp} onChange={function (e) { onUpdate("followUp", e.target.value); }} style={Object.assign({}, selS, { fontSize: 9 })}>
+        {FOLLOWUP_OPTS.map(function (o) { return <option key={o} value={o}>{o}</option>; })}
+      </select>
+      {onRemove && <button onClick={onRemove} style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 10 }}>✕</button>}
+    </div>
+    {expanded && (<div style={{ marginTop: 8, marginLeft: 17, display: "flex", flexDirection: "column", gap: 6 }}>
+      <input value={t.description || ""} onChange={function (e) { onUpdate("description", e.target.value); }} placeholder="Description..." style={Object.assign({}, iS, { fontSize: 11, color: T.ts })} />
+      <div style={{ display: "flex", gap: 8 }}>
+        <input value={t.owner || ""} onChange={function (e) { onUpdate("owner", e.target.value); }} placeholder="Owner name..." style={Object.assign({}, smI, { flex: 1, fontSize: 10 })} />
+        <input value={t.ownerRole || ""} onChange={function (e) { onUpdate("ownerRole", e.target.value); }} placeholder="Role..." style={Object.assign({}, smI, { flex: 1, fontSize: 10 })} />
+      </div>
+      <input value={t.notes || ""} onChange={function (e) { onUpdate("notes", e.target.value); }} placeholder="Notes..." style={Object.assign({}, iS, { fontSize: 11, color: T.ts })} />
+    </div>)}
+  </div>);
+}
+
+/* Helper: update item in array by id */
+function updArr(arr, id, field, value) {
+  return arr.map(function (x) { return x.id === id ? Object.assign({}, x, (function () { var o = {}; o[field] = value; return o; })()) : x; });
+}
+
+function ExecView({ onNav }) {
+  /* ── Business Context ── */
+  var _ctx = useState({
+    industry: "Financial Services — Insurance & Wealth Management",
+    footprint: "178 sites across 14 US states, 3 Canadian provinces, 2 data centers, 1 DR site",
+    summary: "Meridian Financial Group is a mid-market financial services holding company operating insurance, wealth management, and advisory subsidiaries. Two recent acquisitions (Pinnacle Insurance, NorthStar Wealth) remain on separate network and security stacks.",
+    whyNow: "CTO mandate: cloud-first architecture and zero trust security by FY27. AT&T MPLS contract expires Dec 2026. Pinnacle and NorthStar need full network integration. Board requires measurable security improvement within 12 months.",
+    posture: "Active transformation — executive-sponsored, funded, seeking implementation partner",
+    notes: ""
+  }); var ctx = _ctx[0]; var setCtx = _ctx[1];
+  function updCtx(f, v) { setCtx(Object.assign({}, ctx, (function () { var o = {}; o[f] = v; return o; })())); }
+
+  /* ── Strategic Priorities ── */
+  var _pri = useState([
+    { id: 1, label: "Cost Efficiency", weight: 9, confirmed: true },
+    { id: 2, label: "Security & Resilience", weight: 9, confirmed: true },
+    { id: 3, label: "Cloud Enablement", weight: 8, confirmed: true },
+    { id: 4, label: "Standardization", weight: 8, confirmed: false },
+    { id: 5, label: "M&A Integration", weight: 7, confirmed: true },
+    { id: 6, label: "Growth Scalability", weight: 6, confirmed: false },
+    { id: 7, label: "AI / Automation", weight: 5, confirmed: false },
+    { id: 8, label: "Customer Experience", weight: 4, confirmed: false },
+  ]); var priorities = _pri[0]; var setPriorities = _pri[1];
+
+  /* ── Success Definition ── */
+  var _suc = useState([
+    { id: 1, label: "Reduce network complexity and vendor sprawl", confirmed: true, notes: "" },
+    { id: 2, label: "Improve security posture to meet board mandate", confirmed: true, notes: "FY27 zero trust requirement" },
+    { id: 3, label: "Standardize branch infrastructure across all sites", confirmed: false, notes: "" },
+    { id: 4, label: "Accelerate cloud migration with direct connectivity", confirmed: true, notes: "" },
+    { id: 5, label: "Integrate acquisitions onto unified platform", confirmed: true, notes: "Pinnacle + NorthStar" },
+    { id: 6, label: "Reduce site deployment time from 90 days to under 10", confirmed: false, notes: "" },
+  ]); var success = _suc[0]; var setSuccess = _suc[1];
+
+  /* ── Business Drivers ── */
+  var _drv = useState([
+    { id: 1, label: "Provider consolidation", category: "Efficiency", description: "Reduce from 6 WAN providers to 1-2 strategic partners", scope: "Focus Now", followUp: "No Follow-Up", confirmed: true, owner: "", ownerRole: "", notes: "" },
+    { id: 2, label: "MPLS contract expiration", category: "Efficiency", description: "AT&T MPLS ($2.1M/yr) expires Dec 2026 — transition required", scope: "Focus Now", followUp: "No Follow-Up", confirmed: true, owner: "", ownerRole: "", notes: "" },
+    { id: 3, label: "Cloud migration acceleration", category: "Growth", description: "AWS/Azure workload growth requires direct cloud connectivity", scope: "Focus Now", followUp: "No Follow-Up", confirmed: true, owner: "", ownerRole: "", notes: "" },
+    { id: 4, label: "M&A network integration", category: "Scale", description: "Pinnacle (38 sites) and NorthStar (12 sites) need integration", scope: "Focus Now", followUp: "No Follow-Up", confirmed: true, owner: "", ownerRole: "", notes: "" },
+    { id: 5, label: "Security modernization", category: "Risk", description: "38 EOL firewalls, no microsegmentation, fragmented tooling", scope: "Focus Now", followUp: "No Follow-Up", confirmed: true, owner: "", ownerRole: "", notes: "" },
+    { id: 6, label: "Branch simplification", category: "Efficiency", description: "Standardize CPE, enable local breakout, reduce truck rolls", scope: "Focus Now", followUp: "No Follow-Up", confirmed: false, owner: "", ownerRole: "", notes: "" },
+    { id: 7, label: "Operational visibility", category: "Risk", description: "Fragmented monitoring — SolarWinds + PRTG + spreadsheets", scope: "Park", followUp: "Needs GTT Follow-Up", confirmed: false, owner: "", ownerRole: "", notes: "" },
+    { id: 8, label: "AI / automation readiness", category: "Growth", description: "GCP Vertex AI workloads growing 3x — need reliable connectivity", scope: "Park", followUp: "Future Phase", confirmed: false, owner: "", ownerRole: "", notes: "" },
+    { id: 9, label: "Geographic expansion", category: "Scale", description: "Potential new markets requiring rapid site deployment", scope: "Out of Scope", followUp: "Future Phase", confirmed: false, owner: "", ownerRole: "", notes: "" },
+  ]); var drivers = _drv[0]; var setDrivers = _drv[1];
+
+  /* ── Functional Priorities ── */
+  var _func = useState([
+    { id: 1, group: "Business", label: "Reduce operating cost and improve margin", confirmed: true, scope: "Focus Now", followUp: "No Follow-Up", description: "", owner: "", ownerRole: "", notes: "" },
+    { id: 2, group: "Business", label: "Support acquisitions with rapid integration", confirmed: true, scope: "Focus Now", followUp: "No Follow-Up", description: "", owner: "", ownerRole: "", notes: "" },
+    { id: 3, group: "Finance", label: "Predictable, consolidated network spend", confirmed: false, scope: "Focus Now", followUp: "Customer Validation Needed", description: "", owner: "", ownerRole: "", notes: "" },
+    { id: 4, group: "Finance", label: "Avoid stranded contract costs during transition", confirmed: false, scope: "Focus Now", followUp: "No Follow-Up", description: "", owner: "", ownerRole: "", notes: "" },
+    { id: 5, group: "Technology", label: "Cloud-first architecture with direct breakout", confirmed: true, scope: "Focus Now", followUp: "No Follow-Up", description: "", owner: "", ownerRole: "", notes: "" },
+    { id: 6, group: "Technology", label: "SD-WAN with unified orchestration", confirmed: true, scope: "Focus Now", followUp: "No Follow-Up", description: "", owner: "", ownerRole: "", notes: "" },
+    { id: 7, group: "Operations", label: "Single-pane visibility across all sites", confirmed: false, scope: "Park", followUp: "Needs GTT Follow-Up", description: "", owner: "", ownerRole: "", notes: "" },
+    { id: 8, group: "Operations", label: "Reduce MTTR and truck rolls", confirmed: false, scope: "Focus Now", followUp: "No Follow-Up", description: "", owner: "", ownerRole: "", notes: "" },
+    { id: 9, group: "Security", label: "Zero trust posture by FY27", confirmed: true, scope: "Focus Now", followUp: "No Follow-Up", description: "", owner: "", ownerRole: "", notes: "" },
+    { id: 10, group: "Security", label: "Consolidate security tooling from 11 to 5 vendors", confirmed: true, scope: "Focus Now", followUp: "No Follow-Up", description: "", owner: "", ownerRole: "", notes: "" },
+    { id: 11, group: "Cloud", label: "Multi-cloud connectivity without DC hairpin", confirmed: true, scope: "Focus Now", followUp: "No Follow-Up", description: "", owner: "", ownerRole: "", notes: "" },
+    { id: 12, group: "Cloud", label: "Enable AI/ML workload growth on GCP", confirmed: false, scope: "Park", followUp: "Future Phase", description: "", owner: "", ownerRole: "", notes: "" },
+  ]); var funcPri = _func[0]; var setFuncPri = _func[1];
+
+  /* ── Transformation Triggers ── */
+  var _trig = useState([
+    { id: 1, label: "MPLS contract renewal deadline", description: "AT&T contract expires Dec 2026 — requires transition plan", scope: "Focus Now", followUp: "No Follow-Up", confirmed: true, owner: "", ownerRole: "", notes: "" },
+    { id: 2, label: "M&A integration mandate", description: "Pinnacle and NorthStar must be on unified platform", scope: "Focus Now", followUp: "No Follow-Up", confirmed: true, owner: "", ownerRole: "", notes: "" },
+    { id: 3, label: "Board security directive", description: "Zero trust and measurable improvement within 12 months", scope: "Focus Now", followUp: "No Follow-Up", confirmed: true, owner: "", ownerRole: "", notes: "" },
+    { id: 4, label: "Cloud workload growth", description: "Azure +30% YoY, AWS primary, GCP AI/ML expanding", scope: "Focus Now", followUp: "No Follow-Up", confirmed: true, owner: "", ownerRole: "", notes: "" },
+    { id: 5, label: "End-of-life equipment", description: "38 Cisco ASA firewalls past EOS, 23% CPE aging", scope: "Focus Now", followUp: "No Follow-Up", confirmed: true, owner: "", ownerRole: "", notes: "" },
+    { id: 6, label: "Application modernization", description: "Core banking and claims migration driving connectivity needs", scope: "Park", followUp: "Customer Validation Needed", confirmed: false, owner: "", ownerRole: "", notes: "" },
+  ]); var triggers = _trig[0]; var setTriggers = _trig[1];
+
+  /* ── Constraints ── */
+  var _con = useState([
+    { id: 1, label: "MPLS transition timeline", description: "Must complete before Dec 2026 contract end", scope: "Focus Now", followUp: "No Follow-Up", confirmed: true, owner: "", ownerRole: "", notes: "" },
+    { id: 2, label: "Pinnacle separate security stack", description: "Cisco ASA environment requires dedicated migration plan", scope: "Focus Now", followUp: "No Follow-Up", confirmed: true, owner: "", ownerRole: "", notes: "" },
+    { id: 3, label: "Internal staffing limits", description: "Small network team — may need managed services model", scope: "Focus Now", followUp: "Customer Validation Needed", confirmed: false, owner: "", ownerRole: "", notes: "" },
+    { id: 4, label: "Budget cycle alignment", description: "Capital vs. operating expense preferences to confirm", scope: "Park", followUp: "Owner Not Present", confirmed: false, owner: "", ownerRole: "CFO", notes: "" },
+    { id: 5, label: "Compliance requirements", description: "Financial services regulatory and audit considerations", scope: "Focus Now", followUp: "No Follow-Up", confirmed: false, owner: "", ownerRole: "", notes: "" },
+  ]); var constraints = _con[0]; var setConstraints = _con[1];
+
+  /* ── Decision Criteria ── */
+  var _dec = useState([
+    { id: 1, label: "Simplicity", description: "Prefer converged, fewer-vendor solutions", confirmed: true, scope: "Focus Now", followUp: "No Follow-Up", owner: "", ownerRole: "", notes: "" },
+    { id: 2, label: "Speed of deployment", description: "Aggressive timeline driven by MPLS expiration", confirmed: true, scope: "Focus Now", followUp: "No Follow-Up", owner: "", ownerRole: "", notes: "" },
+    { id: 3, label: "Cost predictability", description: "Preference for opex model with clear per-site economics", confirmed: false, scope: "Focus Now", followUp: "Customer Validation Needed", owner: "", ownerRole: "", notes: "" },
+    { id: 4, label: "Security posture", description: "Board-level mandate — non-negotiable", confirmed: true, scope: "Focus Now", followUp: "No Follow-Up", owner: "", ownerRole: "", notes: "" },
+    { id: 5, label: "Resilience & uptime", description: "Financial services SLA expectations", confirmed: true, scope: "Focus Now", followUp: "No Follow-Up", owner: "", ownerRole: "", notes: "" },
+    { id: 6, label: "Vendor consolidation", description: "Reduce from 6 providers + 11 security vendors", confirmed: false, scope: "Focus Now", followUp: "No Follow-Up", owner: "", ownerRole: "", notes: "" },
+  ]); var criteria = _dec[0]; var setCriteria = _dec[1];
+
+  /* ── Session notes ── */
+  var _notes = useState(""); var sessionNotes = _notes[0]; var setSessionNotes = _notes[1];
+
+  /* ── Derived rollups ── */
+  var allTopics = [].concat(drivers, funcPri, triggers, constraints, criteria);
+  var focusNow = allTopics.filter(function (t) { return t.scope === "Focus Now"; });
+  var parked = allTopics.filter(function (t) { return t.scope === "Park"; });
+  var outOfScope = allTopics.filter(function (t) { return t.scope === "Out of Scope"; });
+  var needsFollowUp = allTopics.filter(function (t) { return t.followUp !== "No Follow-Up"; });
+  var ownerMissing = allTopics.filter(function (t) { return t.followUp === "Owner Not Present"; });
+  var gttFollowUp = allTopics.filter(function (t) { return t.followUp === "Needs GTT Follow-Up"; });
+  var scheduleSession = allTopics.filter(function (t) { return t.followUp === "Schedule Session"; });
+  var execAlign = allTopics.filter(function (t) { return t.followUp === "Executive Alignment Needed"; });
+
+  /* ── Focus area recommendations ── */
+  var focusAreas = [
+    { id: "footprint", label: "GTT Footprint Studio", reason: "Review current GTT presence and expansion opportunities", active: drivers.some(function (d) { return d.label.indexOf("consolidation") >= 0 && d.scope === "Focus Now"; }) },
+    { id: "current", label: "Infrastructure Studio", reason: "Map current estate, providers, and constraints", active: true },
+    { id: "network", label: "Network Studio", reason: "SD-WAN readiness, MPLS transition, branch standards", active: drivers.some(function (d) { return (d.label.indexOf("MPLS") >= 0 || d.label.indexOf("Branch") >= 0) && d.scope === "Focus Now"; }) },
+    { id: "security", label: "Security Studio", reason: "SASE evaluation, zero trust roadmap, vendor consolidation", active: funcPri.some(function (f) { return f.group === "Security" && f.scope === "Focus Now"; }) },
+    { id: "cloud", label: "Cloud Studio", reason: "Multi-cloud connectivity, migration tracking", active: drivers.some(function (d) { return d.label.indexOf("Cloud") >= 0 && d.scope === "Focus Now"; }) },
+    { id: "value", label: "Value Studio", reason: "TCO/ROI analysis and business case", active: focusNow.length >= 4 },
+    { id: "future", label: "Architecture Studio", reason: "Target-state design and convergence vision", active: false },
+    { id: "roadmap", label: "Roadmap Studio", reason: "Phased transformation plan", active: false },
+  ];
+
+  /* ── group helpers ── */
+  var driverCategories = ["Growth", "Efficiency", "Risk", "Scale"];
+  var catColor = function (c) { return c === "Growth" ? T.green : c === "Efficiency" ? T.amber : c === "Risk" ? T.red : T.violet; };
+  var funcGroups = ["Business", "Finance", "Technology", "Operations", "Security", "Cloud"];
+  var funcColor = function (g) { return g === "Business" ? T.green : g === "Finance" ? T.amber : g === "Technology" ? T.blue : g === "Operations" ? T.cyan : g === "Security" ? T.red : T.violet; };
+
+  return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <SecHead s={SECS.find(function (x) { return x.id === "executive"; })} />
+
+    {/* ═══ ROW 1: Business Context + Strategic Priorities + Success ═══ */}
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+
+      {/* Business Context */}
+      <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
+        <span style={{ fontFamily: T.m, fontSize: 9, color: T.green, background: T.green + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>BUSINESS CONTEXT</span>
+        <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 6, marginBottom: 12 }}>Operating environment & transformation thesis</div>
+        {[
+          { key: "industry", label: "Industry" },
+          { key: "footprint", label: "Operating Footprint" },
+          { key: "posture", label: "Strategic Posture" },
+        ].map(function (f) {
+          return (<div key={f.key} style={{ marginBottom: 8 }}>
+            <label style={lbl}>{f.label}</label>
+            <input value={ctx[f.key]} onChange={function (e) { updCtx(f.key, e.target.value); }} style={Object.assign({}, iS, { fontSize: 11 })} />
+          </div>);
+        })}
+        <div style={{ marginBottom: 8 }}>
+          <label style={lbl}>Business Summary</label>
+          <textarea value={ctx.summary} onChange={function (e) { updCtx("summary", e.target.value); }} rows={3} style={{ fontFamily: T.f, fontSize: 11, color: T.tp, border: "1px solid " + T.border, borderRadius: 6, padding: "8px 10px", background: "#fafbfc", boxSizing: "border-box", width: "100%", resize: "vertical", lineHeight: 1.5 }} />
+        </div>
+        <div style={{ marginBottom: 8 }}>
+          <label style={lbl}>Why Now</label>
+          <textarea value={ctx.whyNow} onChange={function (e) { updCtx("whyNow", e.target.value); }} rows={2} style={{ fontFamily: T.f, fontSize: 11, color: T.tp, border: "1px solid " + T.border, borderRadius: 6, padding: "8px 10px", background: "#fafbfc", boxSizing: "border-box", width: "100%", resize: "vertical", lineHeight: 1.5 }} />
+        </div>
+      </div>
+
+      {/* Strategic Priorities + Success Definition stacked */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {/* Strategic Priorities */}
+        <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
+          <span style={{ fontFamily: T.m, fontSize: 9, color: T.blue, background: T.blue + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>STRATEGIC PRIORITIES</span>
+          <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 6, marginBottom: 10 }}>Weighted business priorities</div>
+          {priorities.sort(function (a, b) { return b.weight - a.weight; }).map(function (p, i) {
+            return (<div key={p.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 0" }}>
+              <span style={{ fontFamily: T.f, fontSize: 11, color: T.tp, width: 130, flexShrink: 0 }}>{p.label}</span>
+              <div style={{ flex: 1, height: 8, background: T.border, borderRadius: 4, overflow: "hidden" }}>
+                <div style={{ width: (p.weight * 10) + "%", height: "100%", background: p.confirmed ? T.blue : T.blue + "55", borderRadius: 4 }} />
+              </div>
+              <input type="number" min={1} max={10} value={p.weight} onChange={function (e) { setPriorities(updArr(priorities, p.id, "weight", Math.min(10, Math.max(1, Number(e.target.value) || 1)))); }} style={Object.assign({}, smI, { width: 36, textAlign: "center", fontSize: 10 })} />
+              <span style={{ fontFamily: T.m, fontSize: 8, color: p.confirmed ? T.green : T.td, background: (p.confirmed ? T.green : T.td) + "12", padding: "1px 5px", borderRadius: 3, textTransform: "uppercase", cursor: "pointer", whiteSpace: "nowrap" }} onClick={function () { setPriorities(updArr(priorities, p.id, "confirmed", !p.confirmed)); }}>{p.confirmed ? "Confirmed" : "Suggested"}</span>
+            </div>);
+          })}
+        </div>
+
+        {/* Success Definition */}
+        <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
+          <span style={{ fontFamily: T.m, fontSize: 9, color: T.teal, background: T.teal + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>SUCCESS DEFINITION</span>
+          <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 6, marginBottom: 10 }}>What does "good" look like?</div>
+          {success.map(function (s, i) {
+            return (<div key={s.id} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "6px 0", borderBottom: i < success.length - 1 ? "1px solid " + T.border : "none" }}>
+              <div onClick={function () { setSuccess(updArr(success, s.id, "confirmed", !s.confirmed)); }} style={{ width: 16, height: 16, borderRadius: 3, border: "2px solid " + (s.confirmed ? T.green : T.border), background: s.confirmed ? T.green + "15" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1, cursor: "pointer" }}>
+                {s.confirmed && <span style={{ color: T.green, fontSize: 10, fontWeight: 700 }}>✓</span>}
+              </div>
+              <div style={{ flex: 1 }}>
+                <span style={{ fontFamily: T.f, fontSize: 11, color: T.tp }}>{s.label}</span>
+                {s.notes && <span style={{ fontFamily: T.f, fontSize: 10, color: T.td, marginLeft: 6 }}>— {s.notes}</span>}
+              </div>
+            </div>);
+          })}
+        </div>
+      </div>
+    </div>
+
+    {/* ═══ ROW 2: Business Drivers ═══ */}
+    <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, overflow: "hidden" }}>
+      <div style={{ padding: "14px 18px", borderBottom: "1px solid " + T.border }}>
+        <span style={{ fontFamily: T.m, fontSize: 9, color: T.green, background: T.green + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>BUSINESS DRIVERS & OBJECTIVES</span>
+        <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 5 }}>Confirm priorities, set scope, assign follow-up</div>
+      </div>
+      <div style={{ padding: "8px 18px" }}>
+        {driverCategories.map(function (cat) {
+          var items = drivers.filter(function (d) { return d.category === cat; });
+          if (!items.length) return null;
+          var cc = catColor(cat);
+          return (<div key={cat} style={{ marginBottom: 8 }}>
+            <div style={{ fontFamily: T.m, fontSize: 9, color: cc, letterSpacing: 1, textTransform: "uppercase", padding: "8px 0 2px", borderBottom: "1px solid " + cc + "22" }}>{cat} Drivers</div>
+            {items.map(function (d) {
+              return <TopicRow key={d.id} t={d} onUpdate={function (f, v) { setDrivers(updArr(drivers, d.id, f, v)); }} />;
+            })}
+          </div>);
+        })}
+      </div>
+    </div>
+
+    {/* ═══ ROW 3: Functional Priorities ═══ */}
+    <Disc tag="FUNCTIONAL PRIORITIES" tagColor={T.blue} title="Priorities by business function" summary={funcPri.filter(function (f) { return f.scope === "Focus Now"; }).length + " in focus · " + funcPri.filter(function (f) { return f.confirmed; }).length + " confirmed"} defaultOpen={true}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+        {funcGroups.map(function (grp) {
+          var items = funcPri.filter(function (f) { return f.group === grp; });
+          if (!items.length) return null;
+          var gc = funcColor(grp);
+          return (<div key={grp}>
+            <div style={{ fontFamily: T.m, fontSize: 9, color: gc, letterSpacing: 1, textTransform: "uppercase", paddingBottom: 4, borderBottom: "1px solid " + gc + "22", marginBottom: 4 }}>{grp}</div>
+            {items.map(function (f) {
+              return <TopicRow key={f.id} t={f} onUpdate={function (field, v) { setFuncPri(updArr(funcPri, f.id, field, v)); }} />;
+            })}
+          </div>);
+        })}
+      </div>
     </Disc>
-    <Disc tag="AMBITION" tagColor={T.violet} title="Transformation aggressiveness" summary={"Current: " + amb + " / 10"}>
-      <div style={{ display: "flex", alignItems: "center", gap: 20 }}><div style={{ fontFamily: T.f, fontSize: 42, fontWeight: 700, color: amb >= 7 ? T.violet : T.amber }}>{amb}</div><div style={{ flex: 1 }}><input type="range" min={1} max={10} value={amb} onChange={function (e) { setAmb(Number(e.target.value)); }} style={{ width: "100%", accentColor: T.violet }} /><div style={{ display: "flex", justifyContent: "space-between", fontFamily: T.m, fontSize: 8, color: T.td }}><span>Incremental</span><span>Moderate</span><span>Aggressive</span><span>Overhaul</span></div></div></div>
+
+    {/* ═══ ROW 4: Triggers + Constraints side by side ═══ */}
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+      {/* Transformation Triggers */}
+      <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, overflow: "hidden" }}>
+        <div style={{ padding: "14px 18px", borderBottom: "1px solid " + T.border }}>
+          <span style={{ fontFamily: T.m, fontSize: 9, color: T.amber, background: T.amber + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>TRANSFORMATION TRIGGERS</span>
+          <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 5 }}>What is creating urgency?</div>
+        </div>
+        <div style={{ padding: "4px 18px" }}>
+          {triggers.map(function (t) {
+            return <TopicRow key={t.id} t={t} onUpdate={function (f, v) { setTriggers(updArr(triggers, t.id, f, v)); }} />;
+          })}
+        </div>
+      </div>
+
+      {/* Constraints & Decision Criteria stacked */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, overflow: "hidden" }}>
+          <div style={{ padding: "14px 18px", borderBottom: "1px solid " + T.border }}>
+            <span style={{ fontFamily: T.m, fontSize: 9, color: T.red, background: T.red + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>CONSTRAINTS</span>
+            <div style={{ fontFamily: T.f, fontSize: 13, fontWeight: 600, color: T.tp, marginTop: 5 }}>Boundaries & considerations</div>
+          </div>
+          <div style={{ padding: "4px 18px" }}>
+            {constraints.map(function (c) {
+              return <TopicRow key={c.id} t={c} onUpdate={function (f, v) { setConstraints(updArr(constraints, c.id, f, v)); }} />;
+            })}
+          </div>
+        </div>
+        <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, overflow: "hidden" }}>
+          <div style={{ padding: "14px 18px", borderBottom: "1px solid " + T.border }}>
+            <span style={{ fontFamily: T.m, fontSize: 9, color: T.violet, background: T.violet + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>DECISION CRITERIA</span>
+            <div style={{ fontFamily: T.f, fontSize: 13, fontWeight: 600, color: T.tp, marginTop: 5 }}>How decisions will be made</div>
+          </div>
+          <div style={{ padding: "4px 18px" }}>
+            {criteria.map(function (c) {
+              return <TopicRow key={c.id} t={c} onUpdate={function (f, v) { setCriteria(updArr(criteria, c.id, f, v)); }} />;
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* ═══ ROW 5: Recommended Focus Areas ═══ */}
+    <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
+      <span style={{ fontFamily: T.m, fontSize: 9, color: T.cyan, background: T.cyan + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>RECOMMENDED FOCUS AREAS</span>
+      <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 6, marginBottom: 12 }}>Based on confirmed priorities — click to navigate</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+        {focusAreas.filter(function (f) { return f.active; }).map(function (f) {
+          return (<div key={f.id} onClick={function () { onNav(f.id); }} style={{ padding: "12px 14px", borderRadius: 8, border: "1px solid " + T.cyan + "22", background: T.cyan + "04", cursor: "pointer" }}>
+            <div style={{ fontFamily: T.f, fontSize: 12, fontWeight: 600, color: T.tp }}>{f.label}</div>
+            <div style={{ fontFamily: T.f, fontSize: 10, color: T.td, marginTop: 3, lineHeight: 1.4 }}>{f.reason}</div>
+            <div style={{ fontFamily: T.m, fontSize: 9, color: T.cyan, marginTop: 6, textTransform: "uppercase" }}>Open →</div>
+          </div>);
+        })}
+      </div>
+      {focusAreas.some(function (f) { return !f.active; }) && (
+        <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ fontFamily: T.f, fontSize: 10, color: T.td }}>Later:</span>
+          {focusAreas.filter(function (f) { return !f.active; }).map(function (f) {
+            return <span key={f.id} onClick={function () { onNav(f.id); }} style={{ fontFamily: T.f, fontSize: 10, color: T.td, cursor: "pointer", padding: "2px 8px", borderRadius: 4, border: "1px solid " + T.border }}>{f.label}</span>;
+          })}
+        </div>
+      )}
+    </div>
+
+    {/* ═══ ROW 6: Session Scope & Follow-Up Summary ═══ */}
+    <div style={{ background: T.card, borderRadius: 10, border: "1px solid " + T.border, padding: "16px 18px" }}>
+      <span style={{ fontFamily: T.m, fontSize: 9, color: T.green, background: T.green + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>SESSION SCOPE & FOLLOW-UP SUMMARY</span>
+      <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 6, marginBottom: 12 }}>Live session rollup</div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 14 }}>
+        {[
+          { label: "Focus Now", value: focusNow.length, color: T.green },
+          { label: "Parked", value: parked.length, color: T.amber },
+          { label: "Out of Scope", value: outOfScope.length, color: T.td },
+          { label: "Needs Follow-Up", value: needsFollowUp.length, color: T.cyan },
+        ].map(function (s) {
+          return (<div key={s.label} style={{ padding: "10px 12px", borderRadius: 6, border: "1px solid " + s.color + "22", background: s.color + "06" }}>
+            <div style={{ fontFamily: T.f, fontSize: 20, fontWeight: 700, color: T.tp }}>{s.value}</div>
+            <div style={{ fontFamily: T.m, fontSize: 9, color: s.color, textTransform: "uppercase", marginTop: 2 }}>{s.label}</div>
+          </div>);
+        })}
+      </div>
+
+      {/* Follow-up detail rows */}
+      {[
+        { label: "Owner Not Present", items: ownerMissing, color: T.amber },
+        { label: "GTT Follow-Up Required", items: gttFollowUp, color: T.cyan },
+        { label: "Schedule Dedicated Session", items: scheduleSession, color: T.violet },
+        { label: "Executive Alignment Needed", items: execAlign, color: T.red },
+      ].filter(function (g) { return g.items.length > 0; }).map(function (g) {
+        return (<div key={g.label} style={{ marginBottom: 10 }}>
+          <div style={{ fontFamily: T.m, fontSize: 9, color: g.color, letterSpacing: 1, textTransform: "uppercase", paddingBottom: 4, borderBottom: "1px solid " + g.color + "18", marginBottom: 4 }}>{g.label} ({g.items.length})</div>
+          {g.items.map(function (item, i) {
+            return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
+              <span style={{ fontFamily: T.f, fontSize: 11, color: T.tp }}>{item.label}</span>
+              {item.ownerRole && <span style={{ fontFamily: T.m, fontSize: 9, color: T.td }}>({item.ownerRole})</span>}
+            </div>);
+          })}
+        </div>);
+      })}
+
+      {parked.length > 0 && (<div style={{ marginBottom: 10 }}>
+        <div style={{ fontFamily: T.m, fontSize: 9, color: T.amber, letterSpacing: 1, textTransform: "uppercase", paddingBottom: 4, borderBottom: "1px solid " + T.amber + "18", marginBottom: 4 }}>Parked Topics ({parked.length})</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {parked.map(function (p, i) {
+            return <span key={i} style={{ fontFamily: T.f, fontSize: 10, color: T.amber, background: T.amber + "10", padding: "3px 8px", borderRadius: 4 }}>{p.label}</span>;
+          })}
+        </div>
+      </div>)}
+    </div>
+
+    {/* ═══ Session Notes ═══ */}
+    <Disc tag="SESSION NOTES" tagColor={T.slate} title="Working notes & assumptions" summary={sessionNotes ? "Notes captured" : "No notes yet"}>
+      <textarea value={sessionNotes} onChange={function (e) { setSessionNotes(e.target.value); }} rows={5} placeholder="Capture working assumptions, priorities to validate, additional context..." style={{ fontFamily: T.f, fontSize: 12, color: T.tp, border: "1px solid " + T.border, borderRadius: 6, padding: "10px 12px", background: "#fafbfc", boxSizing: "border-box", width: "100%", resize: "vertical", lineHeight: 1.6 }} />
     </Disc>
   </div>);
 }
@@ -943,7 +1320,7 @@ export default function App() {
     switch (active) {
       case "command": return <CmdCenter onNav={nav} stats={stats} />;
       case "stakeholder": return <StakeholderView custAttendees={custAttendees} setCustAttendees={setCustAttendees} gttAttendees={gttAttendees} setGttAttendees={setGttAttendees} />;
-      case "executive": return <ExecView />;
+      case "executive": return <ExecView onNav={nav} />;
       case "footprint": return <FootprintView />;
       case "current": return <CurrentView sites={sites} setSites={setSites} providers={providers} setProviders={setProviders} />;
       case "network": return <NetView sites={sites} providers={providers} netEls={netEls} setNetEls={setNetEls} netFindings={netFindings} setNetFindings={setNetFindings} />;
