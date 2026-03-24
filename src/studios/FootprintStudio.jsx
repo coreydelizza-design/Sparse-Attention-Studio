@@ -94,16 +94,17 @@ function FootprintView({ onNav }) {
   /* ── Expand service detail ── */
   var _expSvc = useState(null); var expSvc = _expSvc[0]; var setExpSvc = _expSvc[1];
 
-  /* ── Computed ── */
-  var activeSvcs = svcs.filter(function (s) { return s.status === "Active"; });
-  var totalMRR = svcs.reduce(function (a, s) { return a + s.mrr; }, 0);
+  /* ── Computed (only enabled services feed into summaries) ── */
+  var liveSvcs = svcs.filter(function (s) { return s.enabled !== false; });
+  var activeSvcs = liveSvcs.filter(function (s) { return s.status === "Active"; });
+  var totalMRR = liveSvcs.reduce(function (a, s) { return a + s.mrr; }, 0);
   var totalSites = regions.reduce(function (a, r) { return a + r.sites; }, 0);
   var gttSites = regions.reduce(function (a, r) { return a + r.gttSites; }, 0);
-  var totalQty = svcs.reduce(function (a, s) { return a + s.qty; }, 0);
+  var totalQty = liveSvcs.reduce(function (a, s) { return a + s.qty; }, 0);
 
   /* BW aggregation */
   var bwAgg = BW_BANDS.map(function (band) {
-    var total = svcs.reduce(function (a, s) {
+    var total = liveSvcs.reduce(function (a, s) {
       var match = (s.bwDist || []).find(function (b) { return b.band === band; });
       return a + (match ? match.qty : 0);
     }, 0);
@@ -113,7 +114,7 @@ function FootprintView({ onNav }) {
 
   /* Circuit aggregation */
   var circuitAgg = {};
-  svcs.forEach(function (s) {
+  liveSvcs.forEach(function (s) {
     (s.circuits || []).forEach(function (c) {
       circuitAgg[c] = (circuitAgg[c] || 0) + s.qty;
     });
@@ -202,7 +203,7 @@ function FootprintView({ onNav }) {
       <div style={{ padding: "14px 18px", borderBottom: "1px solid " + T.border, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <span style={{ fontFamily: T.m, fontSize: 9, color: T.teal, background: T.teal + "11", padding: "2px 7px", borderRadius: 3, letterSpacing: 1.2, textTransform: "uppercase" }}>INSTALLED SERVICE BASELINE</span>
-          <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 5 }}>{svcs.length} services · {totalQty} circuits/instances</div>
+          <div style={{ fontFamily: T.f, fontSize: 14, fontWeight: 600, color: T.tp, marginTop: 5 }}>{liveSvcs.length} active of {svcs.length} services · {totalQty} circuits/instances</div>
         </div>
         {isPrep && <button onClick={function () { setShowAdd(!showAdd); }} style={{ fontFamily: T.f, fontSize: 10, color: "#fff", background: T.teal, border: "none", borderRadius: 5, padding: "5px 12px", cursor: "pointer" }}>{showAdd ? "Cancel" : "+ Add Service"}</button>}
       </div>
@@ -304,7 +305,7 @@ function FootprintView({ onNav }) {
       {/* Product Penetration */}
       <PrimaryCard tag="PRODUCT PENETRATION" tagColor={T.blue} title="Service mix by site base">
         {SVC_CATEGORIES.map(function (cat, i) {
-          var svc = svcs.find(function (s) { return s.category === cat; });
+          var svc = liveSvcs.find(function (s) { return s.category === cat; });
           var pct = svc && totalSites > 0 ? Math.round(svc.siteCt / totalSites * 100) : 0;
           var active = svc && (svc.status === "Active" || svc.status === "Pilot");
           return (<div key={cat} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0", borderBottom: i < SVC_CATEGORIES.length - 1 ? "1px solid " + T.border : "none" }}>
