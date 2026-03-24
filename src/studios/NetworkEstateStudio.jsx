@@ -15,8 +15,15 @@ var TOPICS = [
 ];
 
 /* ═══════ NOTE HELPERS ═══════ */
-var NOTE_TYPES = ["Observation", "Finding", "Decision", "Blocker", "Risk", "Opportunity", "Follow-Up"];
-var NOTE_COLORS = { Observation: T.blue, Finding: T.red, Decision: T.amber, Blocker: T.red, Risk: T.amber, Opportunity: T.green, "Follow-Up": T.violet };
+var NOTE_TYPES = ["Observation", "Pain Point", "Constraint", "Decision", "Unknown", "Risk", "Opportunity", "Follow-Up", "Customer Quote", "GTT Relevance"];
+var NOTE_COLORS = { Observation: T.blue, "Pain Point": T.red, Constraint: T.amber, Decision: T.green, Unknown: T.slate, Risk: T.red, Opportunity: T.green, "Follow-Up": T.violet, "Customer Quote": T.cyan, "GTT Relevance": T.teal };
+var AI_ACTIONS = [
+  { id: "analyze", label: "Analyze Notes", prompt: "Analyze these session notes from a network transformation workshop. Identify the 3-5 most important findings, risks, and actionable insights. Be concise (under 150 words). Format as bullet points." },
+  { id: "findings", label: "Extract Findings", prompt: "From these session notes, extract specific technical findings. List each as a one-line bullet. Focus on facts, measurements, constraints, and confirmed issues. Under 120 words." },
+  { id: "gaps", label: "Find Gaps", prompt: "Analyze these notes and identify what information is missing or unclear. What questions should be asked next? What assumptions need validation? Under 100 words, bullet format." },
+  { id: "gtt", label: "Suggest GTT Plays", prompt: "Based on these notes from a network transformation session, suggest specific GTT solutions that address the issues discussed. Map each issue to a GTT product/service. Be specific and concise. Under 150 words." },
+  { id: "next", label: "Draft Next Steps", prompt: "From these session notes, draft 3-5 specific next steps and follow-up actions. Include who should own each action if possible. Under 100 words." },
+];
 
 /* ═══════ COMPONENT ═══════ */
 export default function NetworkEstateView({ sites, setSites, providers, setProviders, netEls, setNetEls, netFindings, setNetFindings, onNav }) {
@@ -149,6 +156,48 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
   ]); var themes = _themes[0]; var setThemes = _themes[1];
   function updTheme(id, f, v) { setThemes(themes.map(function (t) { return t.id === id ? Object.assign({}, t, (function () { var o = {}; o[f] = v; return o; })()) : t; })); }
 
+  /* ── AI Analysis State (per topic) ── */
+  var _aiResults = useState({}); var aiResults = _aiResults[0]; var setAiResults = _aiResults[1];
+  var _aiLoading = useState(null); var aiLoading = _aiLoading[0]; var setAiLoading = _aiLoading[1];
+
+  function runAI(actionId) {
+    var action = AI_ACTIONS.find(function (a) { return a.id === actionId; });
+    if (!action) return;
+    var topicNotes = (notes[topic] || []).map(function (n) { return "[" + n.type + "] " + n.text; }).join("\n");
+    if (!topicNotes) { var u = Object.assign({}, aiResults); u[topic + "-" + actionId] = "No notes captured yet. Add notes first, then run analysis."; setAiResults(u); return; }
+    var topicLabel = (TOPICS.find(function (t) { return t.id === topic; }) || {}).label || topic;
+    setAiLoading(actionId);
+    fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 600,
+        messages: [{ role: "user", content: "You are a senior network transformation consultant analyzing live session notes for the \"" + topicLabel + "\" topic.\n\n" + action.prompt + "\n\nSession notes:\n" + topicNotes }]
+      })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      var text = d.content && d.content[0] ? d.content[0].text : "Analysis complete.";
+      var u = Object.assign({}, aiResults); u[topic + "-" + actionId] = text; setAiResults(u);
+      setAiLoading(null);
+    }).catch(function () {
+      var u = Object.assign({}, aiResults); u[topic + "-" + actionId] = "Unable to reach AI. Ensure API access is configured."; setAiResults(u);
+      setAiLoading(null);
+    });
+  }
+
+  function clearAI(actionId) {
+    var u = Object.assign({}, aiResults); delete u[topic + "-" + actionId]; setAiResults(u);
+  }
+
+  function pinAIasNote(actionId) {
+    var text = aiResults[topic + "-" + actionId];
+    if (!text) return;
+    var topicNotes = (notes[topic] || []).concat([{ id: Date.now(), type: "Opportunity", text: "[AI] " + text.substring(0, 200), pinned: true }]);
+    var updated = Object.assign({}, notes);
+    updated[topic] = topicNotes;
+    setNotes(updated);
+  }
+
   /* ═══════ RENDER HELPERS ═══════ */
 
   /* Section note input (compact, for any card) */
@@ -180,20 +229,51 @@ export default function NetworkEstateView({ sites, setSites, providers, setProvi
     var topicNotes = notes[topic] || [];
     var pinned = topicNotes.filter(function (n) { return n.pinned; });
     var unpinned = topicNotes.filter(function (n) { return !n.pinned; });
+    var hasActiveAI = AI_ACTIONS.some(function (a) { return aiResults[topic + "-" + a.id]; });
     return (<div>
       {/* Add note */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-        <select value={newNoteType} onChange={function (e) { setNewNoteType(e.target.value); }} style={Object.assign({}, selS, { fontSize: 10, width: 90 })}>
+      <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+        <select value={newNoteType} onChange={function (e) { setNewNoteType(e.target.value); }} style={Object.assign({}, selS, { fontSize: 10, width: 100 })}>
           {NOTE_TYPES.map(function (t) { return <option key={t} value={t}>{t}</option>; })}
         </select>
         <input value={newNoteText} onChange={function (e) { setNewNoteText(e.target.value); }} onKeyDown={function (e) { if (e.key === "Enter") addNote(); }} placeholder="Capture a note..." style={Object.assign({}, iS, { flex: 1, fontSize: 12 })} />
         <button onClick={addNote} style={{ fontFamily: T.f, fontSize: 10, fontWeight: 600, color: "#fff", background: T.blue, border: "none", borderRadius: 5, padding: "6px 12px", cursor: "pointer", whiteSpace: "nowrap" }}>+ Add</button>
       </div>
-      {/* Pinned */}
+      {/* AI Actions */}
+      <div style={{ display: "flex", gap: 4, marginBottom: 10, flexWrap: "wrap" }}>
+        <span style={{ fontFamily: T.f, fontSize: 9, color: T.td, display: "flex", alignItems: "center", marginRight: 4 }}>✦ AI:</span>
+        {AI_ACTIONS.map(function (a) {
+          var isActive = aiResults[topic + "-" + a.id];
+          var isLoading = aiLoading === a.id;
+          return <button key={a.id} onClick={function () { runAI(a.id); }} disabled={isLoading} style={{ fontFamily: T.f, fontSize: 9, color: isActive ? T.cyan : T.ts, background: isActive ? T.cyan + "08" : "transparent", border: "1px solid " + (isActive ? T.cyan + "33" : T.border), borderRadius: 4, padding: "3px 8px", cursor: isLoading ? "wait" : "pointer" }}>{isLoading ? "..." : a.label}</button>;
+        })}
+      </div>
+      {/* AI Results */}
+      {hasActiveAI && (<div style={{ marginBottom: 12 }}>
+        {AI_ACTIONS.map(function (a) {
+          var result = aiResults[topic + "-" + a.id];
+          if (!result) return null;
+          return (<div key={a.id} style={{ background: T.cyan + "04", borderRadius: 8, border: "1px solid " + T.cyan + "18", padding: "10px 12px", marginBottom: 6 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 11 }}>✦</span>
+                <span style={{ fontFamily: T.f, fontSize: 10, fontWeight: 600, color: T.tp }}>{a.label}</span>
+              </div>
+              <div style={{ display: "flex", gap: 4 }}>
+                <button onClick={function () { pinAIasNote(a.id); }} title="Pin as note" style={{ fontFamily: T.f, fontSize: 9, color: T.green, background: "none", border: "1px solid " + T.green + "33", borderRadius: 3, padding: "2px 6px", cursor: "pointer" }}>Pin</button>
+                <button onClick={function () { runAI(a.id); }} title="Re-run" style={{ fontFamily: T.f, fontSize: 9, color: T.cyan, background: "none", border: "1px solid " + T.cyan + "33", borderRadius: 3, padding: "2px 6px", cursor: "pointer" }}>Re-run</button>
+                <button onClick={function () { clearAI(a.id); }} title="Dismiss" style={{ background: "none", border: "none", color: T.td, cursor: "pointer", fontSize: 10 }}>✕</button>
+              </div>
+            </div>
+            <div style={{ fontFamily: T.f, fontSize: 11, color: T.ts, lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{result}</div>
+          </div>);
+        })}
+      </div>)}
+      {/* Pinned notes */}
       {pinned.map(function (n) { return renderNoteCard(n); })}
-      {/* Unpinned */}
+      {/* Unpinned notes */}
       {unpinned.map(function (n) { return renderNoteCard(n); })}
-      {!topicNotes.length && <div style={{ fontFamily: T.f, fontSize: 12, color: T.td, fontStyle: "italic", padding: "12px 0" }}>No notes yet for this topic.</div>}
+      {!topicNotes.length && !hasActiveAI && <div style={{ fontFamily: T.f, fontSize: 12, color: T.td, fontStyle: "italic", padding: "12px 0" }}>No notes yet. Capture discussion points above.</div>}
     </div>);
   }
 
