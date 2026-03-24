@@ -567,6 +567,10 @@ function ExecView({ onNav }) {
           <label style={lbl}>Business Summary</label>
           <textarea value={ctx.summary} onChange={function (e) { updCtx("summary", e.target.value); }} rows={3} style={{ fontFamily: T.f, fontSize: 11, color: T.tp, border: "1px solid " + T.border, borderRadius: 6, padding: "8px 10px", background: "#fafbfc", boxSizing: "border-box", width: "100%", resize: "vertical", lineHeight: 1.5 }} />
         </div>
+        <div>
+          <label style={lbl}>Session Notes</label>
+          <textarea value={sessionNotes} onChange={function (e) { setSessionNotes(e.target.value); }} rows={3} placeholder="Working assumptions, priorities to validate, additional context..." style={{ fontFamily: T.f, fontSize: 11, color: T.tp, border: "1px solid " + T.border, borderRadius: 6, padding: "8px 10px", background: "#fafbfc", boxSizing: "border-box", width: "100%", resize: "vertical", lineHeight: 1.5 }} />
+        </div>
       </div>
 
       {/* Strategic Priorities + Success Definition stacked */}
@@ -770,10 +774,6 @@ function ExecView({ onNav }) {
       </div>)}
     </div>
 
-    {/* ═══ Session Notes ═══ */}
-    <Disc tag="SESSION NOTES" tagColor={T.slate} title="Working notes & assumptions" summary={sessionNotes ? "Notes captured" : "No notes yet"}>
-      <textarea value={sessionNotes} onChange={function (e) { setSessionNotes(e.target.value); }} rows={5} placeholder="Capture working assumptions, priorities to validate, additional context..." style={{ fontFamily: T.f, fontSize: 12, color: T.tp, border: "1px solid " + T.border, borderRadius: 6, padding: "10px 12px", background: "#fafbfc", boxSizing: "border-box", width: "100%", resize: "vertical", lineHeight: 1.6 }} />
-    </Disc>
   </div>);
 }
 
