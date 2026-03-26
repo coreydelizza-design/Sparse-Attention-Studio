@@ -39,7 +39,7 @@ function SecView({ secTools, setSecTools, secFindings, setSecFindings }) {
       <button onClick={function () { setStak(stak.concat([{ id: Date.now(), name: "", role: "Other", stance: "Neutral", notes: "" }])); }} style={{ fontFamily: T.f, fontSize: 11, color: T.teal, background: T.teal + "08", border: "1px dashed " + T.teal + "33", borderRadius: 5, padding: "6px 14px", cursor: "pointer", marginTop: 8, width: "100%" }}>+ Add stakeholder</button>
     </Disc>
     <Nts tag="SECURITY NOTES" tc={T.red} title="Session Notes" sub="Posture, ZT, vendor decisions" value={notes} onChange={setNotes} rows={5} />
-    <AIBtn label="Security posture analysis" color={T.red} data={{ notes: notes, sase: sase, vendors: vendors, zt: zt, findings: secFindings, trigger: trigger, trigNote: trigNote, vision: vision, keyMetrics: [met1, met2, met3] }} />
+    <AIBtn label="Full security posture analysis" color={T.red} data={{ trigger: trigger, triggerNotes: trigNote, successVision: vision, successMetrics: { m1: met1, m2: met2, m3: met3 }, stakeholders: stak, notes: notes, sase: sase, gttServices: gttSvc, vendors: vendors, zt: zt, compliance: comp, complianceUrgency: compUrg, securityDecisions: { saseChoice: sd1, ztApproach: sd2 }, findings: secFindings }} />
 
     <PrimaryCard tag="DECISIONS" tagColor={T.amber} title="Security strategy">
       <Decision question="SASE Platform?" options={["FortiSASE", "Zscaler", "Hybrid", "Evaluate"]} selected={sd1} onSelect={setSd1} color={T.red} />
