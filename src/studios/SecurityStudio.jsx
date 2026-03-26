@@ -11,8 +11,8 @@ function SecView({ secTools, setSecTools, secFindings, setSecFindings }) {
   const _zt = useState([{ label: "Single IdP", done: false, sub: "AD+Okta" }, { label: "MFA all users", done: true, sub: "Okta" }, { label: "Device posture", done: false, sub: "None" }, { label: "Microsegmentation", done: false, sub: "Flat" }, { label: "ZTNA replaces VPN", done: false, sub: "2100 split-tunnel" }, { label: "Least-privilege", done: false, sub: "Phase 1" }]); const zt = _zt[0]; const setZt = _zt[1];
   const _sd1 = useState(""); const sd1 = _sd1[0]; const setSd1 = _sd1[1];
   const _sd2 = useState(""); const sd2 = _sd2[0]; const setSd2 = _sd2[1];
-  const _tr = useState(""); const trigger = _tr[0]; const setTrigger = _tr[1];
-  const _trn = useState(""); const triggerNotes = _trn[0]; const setTriggerNotes = _trn[1];
+  const _trig = useState(""); const trigger = _trig[0]; const setTrigger = _trig[1];
+  const _trigNote = useState(""); const trigNote = _trigNote[0]; const setTrigNote = _trigNote[1];
   const _sv = useState(""); const successVision = _sv[0]; const setSuccessVision = _sv[1];
   const _km1 = useState(""); const keyMetric1 = _km1[0]; const setKeyMetric1 = _km1[1];
   const _km2 = useState(""); const keyMetric2 = _km2[0]; const setKeyMetric2 = _km2[1];
@@ -21,9 +21,9 @@ function SecView({ secTools, setSecTools, secFindings, setSecFindings }) {
 
   return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}><SecHead s={SECS.find(function(x){return x.id==="security";})} />
     <Strip label="Security Tower" pct={58} color={T.red} detail={secTools.length + " tools · " + vendors.filter(function (v) { return v.decision === "Replace"; }).length + " to replace"} />
-    <Disc tag="TRIGGER" tagColor={T.red} title="Compelling event" summary={trigger || "Not set"}>
-      <Decision question="Compelling event?" options={["PANW Renewal Cost", "Key Personnel Loss", "Board Mandate", "Compliance Gap", "M&A Integration", "Cost Reduction"]} selected={trigger} onSelect={setTrigger} color={T.red} />
-      <div style={{ marginTop: 10 }}><div style={{ fontFamily: T.f, fontSize: 10, fontWeight: 500, color: T.td, marginBottom: 4 }}>Why now? What&apos;s prompting this?</div><textarea value={triggerNotes} onChange={function (e) { setTriggerNotes(e.target.value); }} placeholder="Describe the urgency, timeline, or event driving this security transformation..." rows={3} style={{ fontFamily: T.f, fontSize: 12, color: T.tp, border: "1px solid " + T.border, borderRadius: 6, padding: "8px 10px", background: "#fff", boxSizing: "border-box", width: "100%", resize: "vertical" }} /></div>
+    <Disc tag="TRIGGER" tagColor={T.red} title="Compelling event" summary="Why are we here?" defaultOpen={true}>
+      <Decision question="What's driving this conversation?" options={["PANW Renewal Cost", "Key Personnel Loss", "Board Mandate", "Compliance Gap", "M&A Integration", "Cost Reduction"]} selected={trigger} onSelect={setTrigger} color={T.red} />
+      <textarea value={trigNote} onChange={function (e) { setTrigNote(e.target.value); }} style={Object.assign({}, smI, { width: "100%", minHeight: 60, resize: "vertical", marginTop: 10, lineHeight: 1.5, boxSizing: "border-box" })} placeholder="Why now? What's prompting this evaluation? (e.g., subscription renewal is expensive, lost key security personnel, new direction to reduce costs)" />
     </Disc>
     <Disc tag="SUCCESS VISION" tagColor={T.green} title="Success vision" summary={successVision ? "Defined" : "Not set"}>
       <Nts tag="1-YEAR VISION" tc={T.green} title="Post-Implementation Vision" sub="What does success look like?" value={successVision} onChange={setSuccessVision} rows={3} placeholder="Fast-forward 1 year post-implementation — what's different?" />
@@ -34,7 +34,7 @@ function SecView({ secTools, setSecTools, secFindings, setSecFindings }) {
       </div>
     </Disc>
     <Nts tag="SECURITY NOTES" tc={T.red} title="Session Notes" sub="Posture, ZT, vendor decisions" value={notes} onChange={setNotes} rows={5} />
-    <AIBtn label="Security posture analysis" color={T.red} data={{ notes: notes, sase: sase, vendors: vendors, zt: zt, findings: secFindings, trigger: trigger, triggerNotes: triggerNotes, successVision: successVision, keyMetrics: [keyMetric1, keyMetric2, keyMetric3] }} />
+    <AIBtn label="Security posture analysis" color={T.red} data={{ notes: notes, sase: sase, vendors: vendors, zt: zt, findings: secFindings, trigger: trigger, trigNote: trigNote, successVision: successVision, keyMetrics: [keyMetric1, keyMetric2, keyMetric3] }} />
 
     <PrimaryCard tag="DECISIONS" tagColor={T.amber} title="Security strategy">
       <Decision question="SASE Platform?" options={["FortiSASE", "Zscaler", "Hybrid", "Evaluate"]} selected={sd1} onSelect={setSd1} color={T.red} />
