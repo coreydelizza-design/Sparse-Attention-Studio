@@ -13,6 +13,10 @@ function SecView({ secTools, setSecTools, secFindings, setSecFindings }) {
   const _sd2 = useState(""); const sd2 = _sd2[0]; const setSd2 = _sd2[1];
   const _tr = useState(""); const trigger = _tr[0]; const setTrigger = _tr[1];
   const _trn = useState(""); const triggerNotes = _trn[0]; const setTriggerNotes = _trn[1];
+  const _sv = useState(""); const successVision = _sv[0]; const setSuccessVision = _sv[1];
+  const _km1 = useState(""); const keyMetric1 = _km1[0]; const setKeyMetric1 = _km1[1];
+  const _km2 = useState(""); const keyMetric2 = _km2[0]; const setKeyMetric2 = _km2[1];
+  const _km3 = useState(""); const keyMetric3 = _km3[0]; const setKeyMetric3 = _km3[1];
   const saseAvg = (sase.reduce(function (a, x) { return a + x.score; }, 0) / sase.length).toFixed(1);
 
   return (<div style={{ display: "flex", flexDirection: "column", gap: 14 }}><SecHead s={SECS.find(function(x){return x.id==="security";})} />
@@ -21,8 +25,16 @@ function SecView({ secTools, setSecTools, secFindings, setSecFindings }) {
       <Decision question="Compelling event?" options={["PANW Renewal Cost", "Key Personnel Loss", "Board Mandate", "Compliance Gap", "M&A Integration", "Cost Reduction"]} selected={trigger} onSelect={setTrigger} color={T.red} />
       <div style={{ marginTop: 10 }}><div style={{ fontFamily: T.f, fontSize: 10, fontWeight: 500, color: T.td, marginBottom: 4 }}>Why now? What&apos;s prompting this?</div><textarea value={triggerNotes} onChange={function (e) { setTriggerNotes(e.target.value); }} placeholder="Describe the urgency, timeline, or event driving this security transformation..." rows={3} style={{ fontFamily: T.f, fontSize: 12, color: T.tp, border: "1px solid " + T.border, borderRadius: 6, padding: "8px 10px", background: "#fff", boxSizing: "border-box", width: "100%", resize: "vertical" }} /></div>
     </Disc>
+    <Disc tag="SUCCESS VISION" tagColor={T.green} title="Success vision" summary={successVision ? "Defined" : "Not set"}>
+      <Nts tag="1-YEAR VISION" tc={T.green} title="Post-Implementation Vision" sub="What does success look like?" value={successVision} onChange={setSuccessVision} rows={3} placeholder="Fast-forward 1 year post-implementation — what's different?" />
+      <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+        <div style={{ flex: 1 }}><div style={{ fontFamily: T.f, fontSize: 10, fontWeight: 500, color: T.td, marginBottom: 4 }}>Key metric 1</div><input value={keyMetric1} onChange={function (e) { setKeyMetric1(e.target.value); }} placeholder="e.g. Mean time to detect < 15 min" style={Object.assign({}, smI, { width: "100%", boxSizing: "border-box" })} /></div>
+        <div style={{ flex: 1 }}><div style={{ fontFamily: T.f, fontSize: 10, fontWeight: 500, color: T.td, marginBottom: 4 }}>Key metric 2</div><input value={keyMetric2} onChange={function (e) { setKeyMetric2(e.target.value); }} placeholder="e.g. Vendor count 11 → 5" style={Object.assign({}, smI, { width: "100%", boxSizing: "border-box" })} /></div>
+        <div style={{ flex: 1 }}><div style={{ fontFamily: T.f, fontSize: 10, fontWeight: 500, color: T.td, marginBottom: 4 }}>Key metric 3</div><input value={keyMetric3} onChange={function (e) { setKeyMetric3(e.target.value); }} placeholder="e.g. ZT coverage 100% by Q4" style={Object.assign({}, smI, { width: "100%", boxSizing: "border-box" })} /></div>
+      </div>
+    </Disc>
     <Nts tag="SECURITY NOTES" tc={T.red} title="Session Notes" sub="Posture, ZT, vendor decisions" value={notes} onChange={setNotes} rows={5} />
-    <AIBtn label="Security posture analysis" color={T.red} data={{ notes: notes, sase: sase, vendors: vendors, zt: zt, findings: secFindings }} />
+    <AIBtn label="Security posture analysis" color={T.red} data={{ notes: notes, sase: sase, vendors: vendors, zt: zt, findings: secFindings, trigger: trigger, triggerNotes: triggerNotes, successVision: successVision, keyMetrics: [keyMetric1, keyMetric2, keyMetric3] }} />
 
     <PrimaryCard tag="DECISIONS" tagColor={T.amber} title="Security strategy">
       <Decision question="SASE Platform?" options={["FortiSASE", "Zscaler", "Hybrid", "Evaluate"]} selected={sd1} onSelect={setSd1} color={T.red} />
