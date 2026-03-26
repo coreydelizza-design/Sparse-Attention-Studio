@@ -23,7 +23,7 @@ const SECS = [
   { id: "security", label: "Security Studio", icon: "◆", phase: 4, status: "in-progress", pct: 58, desc: "SASE, zero trust, compliance", color: T.red },
   { id: "cloud", label: "Cloud Studio", icon: "◇", phase: 5, status: "in-progress", pct: 45, desc: "Multi-cloud, migration, edge", color: T.violet },
   { id: "future", label: "Architecture Studio", icon: "◬", phase: 6, status: "not-started", pct: 20, desc: "Target architecture", color: T.teal },
-  { id: "value", label: "Value Studio", icon: "◪", phase: null, status: "not-started", pct: 10, desc: "TCO/ROI analysis", color: T.slate },
+  { id: "value", label: "Value Studio", icon: "💰", phase: null, status: "not-started", pct: 10, desc: "TCO/ROI analysis", color: T.slate },
   { id: "roadmap", label: "Roadmap Studio", icon: "▷", phase: 7, status: "not-started", pct: 15, desc: "Phases & dependencies", color: T.slate },
   { id: "deliver", label: "Deliverables Studio", icon: "◱", phase: 8, status: "not-started", pct: 20, desc: "Outputs & artifacts", color: T.violet },
 ];

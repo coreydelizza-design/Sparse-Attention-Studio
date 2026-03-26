@@ -11,6 +11,7 @@ import NetworkEstateView from "./studios/NetworkEstateStudio";
 import SecView from "./studios/SecurityStudio";
 import CldView from "./studios/CloudStudio";
 import SimpleView from "./studios/SimpleStudio";
+import ValueStudio from "./components/sections/value-studio/ValueStudio";
 
 export default function App() {
   const _a = useState("command"); const active = _a[0]; const setActive = _a[1];
@@ -38,7 +39,7 @@ export default function App() {
       case "security": return <SecView secTools={secTools} setSecTools={setSecTools} secFindings={secFindings} setSecFindings={setSecFindings} />;
       case "cloud": return <CldView cloudRes={cloudRes} setCloudRes={setCloudRes} cloudFindings={cloudFindings} setCloudFindings={setCloudFindings} />;
       case "future": return <SimpleView sid="future" items={FP} />;
-      case "value": return <SimpleView sid="value" items={VP} />;
+      case "value": return <ValueStudio />;
       case "roadmap": return <SimpleView sid="roadmap" items={RoP} />;
       case "deliver": return <SimpleView sid="deliver" items={DeP} />;
       default: return <CmdCenter onNav={nav} stats={stats} />;
