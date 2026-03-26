@@ -1,10 +1,11 @@
 /* ──────────────────────────────────────────────────────────────
-   MixBuilder – Service line-item builder for incumbent / GTT
+   MixBuilder – Unified service line-item builder.
+   Both sides use the same UNIFIED_ACCESS_TYPES dropdown.
    ────────────────────────────────────────────────────────────── */
 
 import React from "react";
 import { useTheme } from "../../../theme/useTheme";
-import { INCUMBENT_ACCESS_TYPES, GTT_ACCESS_TYPES } from "../../../data/tco";
+import { UNIFIED_ACCESS_TYPES } from "../../../data/tco";
 
 interface MixItem {
   id: string;
@@ -27,6 +28,7 @@ interface MixBuilderProps {
     updateMixItem: (mix: MixItem[], setMix: any, index: number, field: string, value: any) => void;
   };
   mrr: number;
+  onMirror?: () => void;
 }
 
 const fmtK = (n: number): string => {
@@ -46,11 +48,11 @@ export const MixBuilder: React.FC<MixBuilderProps> = ({
   benchmark,
   tcoFns,
   mrr,
+  onMirror,
 }) => {
   const { t } = useTheme();
   const { getUnitPrice, addMixItem, removeMixItem, updateMixItem } = tcoFns;
-  const isGtt = color === t.emerald;
-  const accessTypes = isGtt ? GTT_ACCESS_TYPES : INCUMBENT_ACCESS_TYPES;
+  const accessTypes = UNIFIED_ACCESS_TYPES;
 
   const selectStyle: React.CSSProperties = {
     background: t.bg,
@@ -63,7 +65,7 @@ export const MixBuilder: React.FC<MixBuilderProps> = ({
     width: "100%",
   };
 
-  const colHeaders = ["Access", "Speed", "Qty", "$/mo", ""];
+  const colHeaders = ["Service", "Speed", "Sites/Qty", "$/mo", ""];
 
   return (
     <div
@@ -98,22 +100,8 @@ export const MixBuilder: React.FC<MixBuilderProps> = ({
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: 2,
-              background: color,
-            }}
-          />
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              fontFamily: t.fontD,
-              color: t.text,
-            }}
-          >
+          <div style={{ width: 8, height: 8, borderRadius: 2, background: color }} />
+          <span style={{ fontSize: 13, fontWeight: 700, fontFamily: t.fontD, color: t.text }}>
             {title}
           </span>
           <span
@@ -129,16 +117,30 @@ export const MixBuilder: React.FC<MixBuilderProps> = ({
             {subtitle}
           </span>
         </div>
-        <span
-          style={{
-            fontSize: 16,
-            fontWeight: 700,
-            color,
-            fontFamily: t.fontM,
-          }}
-        >
-          {fmtK(mrr)}/mo
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {onMirror && (
+            <button
+              onClick={onMirror}
+              title="Copy this config to the other side"
+              style={{
+                background: "none",
+                border: `1px dashed ${t.cyan}44`,
+                borderRadius: 6,
+                padding: "4px 10px",
+                fontSize: 10,
+                fontFamily: t.fontM,
+                color: t.cyan,
+                cursor: "pointer",
+                fontWeight: 600,
+              }}
+            >
+              {"\uD83D\uDCCB"} Copy config
+            </button>
+          )}
+          <span style={{ fontSize: 16, fontWeight: 700, color, fontFamily: t.fontM }}>
+            {fmtK(mrr)}/mo
+          </span>
+        </div>
       </div>
 
       {/* Column headers */}
@@ -171,7 +173,9 @@ export const MixBuilder: React.FC<MixBuilderProps> = ({
         {mix.map((item, idx) => {
           const at = accessTypes.find((a) => a.value === item.accessType);
           const speeds = at?.speeds || [100];
-          const lineTotal = getUnitPrice(item.accessType, item.speed, benchmark) * item.qty;
+          const isFlatRate = speeds.length === 1 && speeds[0] === 0;
+          const unitPrice = getUnitPrice(item.accessType, item.speed, benchmark);
+          const lineTotal = unitPrice * item.qty;
 
           return (
             <div
@@ -187,31 +191,52 @@ export const MixBuilder: React.FC<MixBuilderProps> = ({
                 border: `1px solid ${t.borderSubtle}`,
               }}
             >
-              {/* Access Type */}
+              {/* Service Type */}
               <select
                 value={item.accessType}
-                onChange={(e) => updateMixItem(mix, setMix, idx, "accessType", e.target.value)}
+                onChange={(e) => {
+                  const newAt = accessTypes.find((a) => a.value === e.target.value);
+                  const newSpeeds = newAt?.speeds || [100];
+                  const newIsFlatRate = newSpeeds.length === 1 && newSpeeds[0] === 0;
+                  updateMixItem(mix, setMix, idx, "accessType", e.target.value);
+                  if (newIsFlatRate) {
+                    updateMixItem(mix, setMix, idx, "speed", 0);
+                  } else if (item.speed === 0) {
+                    updateMixItem(mix, setMix, idx, "speed", newSpeeds[Math.min(3, newSpeeds.length - 1)]);
+                  }
+                }}
                 style={selectStyle}
               >
                 {accessTypes.map((a) => (
-                  <option key={a.value} value={a.value}>
-                    {a.label}
-                  </option>
+                  <option key={a.value} value={a.value}>{a.label}</option>
                 ))}
               </select>
 
-              {/* Speed */}
-              <select
-                value={item.speed}
-                onChange={(e) => updateMixItem(mix, setMix, idx, "speed", parseInt(e.target.value))}
-                style={{ ...selectStyle, fontFamily: t.fontM }}
-              >
-                {speeds.map((s) => (
-                  <option key={s} value={s}>
-                    {s >= 1000 ? `${s / 1000}G` : `${s}M`}
-                  </option>
-                ))}
-              </select>
+              {/* Speed or Flat Rate indicator */}
+              {isFlatRate ? (
+                <span
+                  style={{
+                    fontSize: 10,
+                    color: t.textDim,
+                    fontFamily: t.fontM,
+                    textAlign: "center",
+                  }}
+                >
+                  per site
+                </span>
+              ) : (
+                <select
+                  value={item.speed}
+                  onChange={(e) => updateMixItem(mix, setMix, idx, "speed", parseInt(e.target.value))}
+                  style={{ ...selectStyle, fontFamily: t.fontM }}
+                >
+                  {speeds.map((s) => (
+                    <option key={s} value={s}>
+                      {s >= 1000 ? `${s / 1000}G` : `${s}M`}
+                    </option>
+                  ))}
+                </select>
+              )}
 
               {/* Qty */}
               <input
@@ -267,9 +292,11 @@ export const MixBuilder: React.FC<MixBuilderProps> = ({
 
       {/* Add button */}
       <button
-        onClick={() =>
-          addMixItem(mix, setMix, accessTypes[0].value, accessTypes[0].speeds[3] || 100, 1)
-        }
+        onClick={() => {
+          const firstSpeedBased = accessTypes.find((a) => !(a.speeds.length === 1 && a.speeds[0] === 0));
+          const at = firstSpeedBased || accessTypes[0];
+          addMixItem(mix, setMix, at.value, at.speeds[Math.min(3, at.speeds.length - 1)] || 100, 1);
+        }}
         style={{
           width: "100%",
           padding: "8px 0",

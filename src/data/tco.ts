@@ -122,8 +122,16 @@ export function getProviderRates(provider: string): RateCard {
 // ── GTT proposed rates ───────────────────────────────────────
 
 export const GTT_RATES: Record<string, number[]> = {
+  mpls:         [350, 450, 550],
   sdwan:        [300, 375, 450],
+  dia:          [400, 525, 650],
+  broadband:    [200, 275, 350],
+  p2p:          [500, 650, 800],
+  wavelength:   [1500, 2100, 2700],
   security:     [200, 275, 350],
+  managed_svc:  [80, 100, 120],
+  cpe:          [150, 200, 250],
+  // Legacy aliases
   network:      [400, 525, 650],
   envisionEdge: [150, 200, 250],
 };
@@ -144,26 +152,29 @@ export const ENVISION_TIERS: Record<string, EnvisionTier> = {
   enterprise:   { label: "Enterprise \u2014 $250/site/mo",    desc: "Full stack: SD-WAN + SSE/SASE + routing + firewall + WAN opt + compute + obs",  price: 250 },
 };
 
-// ── Access types ─────────────────────────────────────────────
+// ── Unified access types (used by both sides) ───────────────
 
-export const INCUMBENT_ACCESS_TYPES: AccessType[] = [
-  { value: "mpls",      label: "MPLS",            speeds: [10, 20, 50, 100, 200, 500, 1000] },
-  { value: "dia",       label: "DIA",             speeds: [10, 20, 50, 100, 200, 500, 1000, 10000] },
-  { value: "broadband", label: "Broadband",       speeds: [50, 100, 200, 500, 1000] },
-  { value: "sdwan",     label: "SD-WAN Overlay",  speeds: [50, 100, 200, 500, 1000] },
-  { value: "p2p",       label: "Point-to-Point",  speeds: [10, 100, 1000, 10000] },
+export const UNIFIED_ACCESS_TYPES: AccessType[] = [
+  { value: "mpls",        label: "MPLS",                     speeds: [10, 20, 50, 100, 200, 500, 1000] },
+  { value: "sdwan",       label: "SD-WAN",                   speeds: [50, 100, 200, 500, 1000] },
+  { value: "dia",         label: "Dedicated Internet (DIA)", speeds: [10, 20, 50, 100, 200, 500, 1000, 10000] },
+  { value: "broadband",   label: "Broadband",                speeds: [50, 100, 200, 500, 1000] },
+  { value: "p2p",         label: "Point-to-Point",           speeds: [10, 100, 1000, 10000] },
+  { value: "wavelength",  label: "Wavelength / Dark Fiber",  speeds: [1000, 10000, 100000] },
+  { value: "security",    label: "Managed Security",         speeds: [0] },
+  { value: "managed_svc", label: "Managed Services",         speeds: [0] },
+  { value: "cpe",         label: "Managed CPE / Edge",       speeds: [0] },
 ];
 
-export const GTT_ACCESS_TYPES: AccessType[] = [
-  { value: "sdwan",      label: "Managed SD-WAN",            speeds: [50, 100, 200, 500, 1000] },
-  { value: "dia",        label: "DIA",                       speeds: [10, 20, 50, 100, 200, 500, 1000, 10000] },
-  { value: "mpls",       label: "IP Transit / MPLS",         speeds: [10, 20, 50, 100, 200, 500, 1000, 10000] },
-  { value: "wavelength", label: "Wavelength / Dark Fiber",   speeds: [1000, 10000, 100000] },
-];
+// DEPRECATED — use UNIFIED_ACCESS_TYPES
+export const INCUMBENT_ACCESS_TYPES: AccessType[] = UNIFIED_ACCESS_TYPES;
+// DEPRECATED — use UNIFIED_ACCESS_TYPES
+export const GTT_ACCESS_TYPES: AccessType[] = UNIFIED_ACCESS_TYPES;
 
 // ── Speed-based cost multiplier ──────────────────────────────
 
 export function speedMultiplier(speed: number): number {
+  if (speed <= 0)     return 1.0;  // flat-rate, no speed multiplier
   if (speed <= 10)    return 0.3;
   if (speed <= 20)    return 0.4;
   if (speed <= 50)    return 0.55;

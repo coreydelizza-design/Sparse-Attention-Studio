@@ -22,8 +22,6 @@ interface TcoParametersProps {
   setTcoSiteCount: (v: number) => void;
   tcoTermMonths: number;
   setTcoTermMonths: (v: number) => void;
-  tcoManagedPerSite: number;
-  setTcoManagedPerSite: (v: number) => void;
   tcoOneTimeInc: number;
   setTcoOneTimeInc: (v: number) => void;
   tcoOneTimeGtt: number;
@@ -46,8 +44,6 @@ export const TcoParameters: React.FC<TcoParametersProps> = ({
   setTcoSiteCount,
   tcoTermMonths,
   setTcoTermMonths,
-  tcoManagedPerSite,
-  setTcoManagedPerSite,
   tcoOneTimeInc,
   setTcoOneTimeInc,
   tcoOneTimeGtt,
@@ -115,10 +111,11 @@ export const TcoParameters: React.FC<TcoParametersProps> = ({
   ];
 
   const gttTiers = [
-    { label: "Managed SD-WAN", arr: GTT_RATES.sdwan },
-    { label: "Managed Security", arr: GTT_RATES.security },
-    { label: "Network / Circuit", arr: GTT_RATES.network },
-    { label: "EnvisionEDGE Device", arr: GTT_RATES.envisionEdge },
+    { label: "MPLS", arr: GTT_RATES.mpls },
+    { label: "SD-WAN", arr: GTT_RATES.sdwan },
+    { label: "DIA", arr: GTT_RATES.dia },
+    { label: "Security", arr: GTT_RATES.security },
+    { label: "Managed CPE", arr: GTT_RATES.cpe },
   ];
 
   /* ── Shared column header ─────────────────────────────── */
@@ -249,29 +246,20 @@ export const TcoParameters: React.FC<TcoParametersProps> = ({
             <div style={{ fontSize: 10, color: t.textDim, marginTop: 6 }}>
               {CPE_COMPLEXITY[cpeComplexity].desc} &mdash;{" "}
               <span style={{ color: t.rose, fontWeight: 600 }}>${incCpePerSite}/site/mo</span>
+              <br />
+              <span style={{ fontSize: 9, color: t.textDim }}>Sets the per-site price for Managed CPE line items</span>
             </div>
           </div>
 
           {/* Numeric params */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-            <div>
-              <div style={labelStyle}>Managed Svc $/site</div>
-              <input
-                type="number"
-                value={tcoManagedPerSite}
-                onChange={(e) => setTcoManagedPerSite(Math.max(0, parseInt(e.target.value) || 0))}
-                style={numericInputStyle}
-              />
-            </div>
-            <div>
-              <div style={labelStyle}>One-Time Costs</div>
-              <input
-                type="number"
-                value={tcoOneTimeInc}
-                onChange={(e) => setTcoOneTimeInc(Math.max(0, parseInt(e.target.value) || 0))}
-                style={numericInputStyle}
-              />
-            </div>
+          <div>
+            <div style={labelStyle}>One-Time Costs</div>
+            <input
+              type="number"
+              value={tcoOneTimeInc}
+              onChange={(e) => setTcoOneTimeInc(Math.max(0, parseInt(e.target.value) || 0))}
+              style={numericInputStyle}
+            />
           </div>
         </GlassCard>
 
@@ -341,35 +329,20 @@ export const TcoParameters: React.FC<TcoParametersProps> = ({
             <div style={{ fontSize: 10, color: t.textDim, marginTop: 6 }}>
               {ENVISION_TIERS[envisionTier].desc} &mdash;{" "}
               <span style={{ color: t.emerald, fontWeight: 600 }}>${gttCpePerSite}/site/mo</span>
+              <br />
+              <span style={{ fontSize: 9, color: t.textDim }}>Sets the per-site price for Managed CPE line items</span>
             </div>
           </div>
 
           {/* Numeric params (mirrored) */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-            <div>
-              <div style={labelStyle}>Managed Svc $/site</div>
-              <div
-                style={{
-                  ...numericInputStyle,
-                  background: t.bgGlass,
-                  color: t.textMuted,
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                ${tcoManagedPerSite}
-                <span style={{ fontSize: 9, color: t.textDim, marginLeft: 4 }}>(shared)</span>
-              </div>
-            </div>
-            <div>
-              <div style={labelStyle}>One-Time Costs</div>
-              <input
-                type="number"
-                value={tcoOneTimeGtt}
-                onChange={(e) => setTcoOneTimeGtt(Math.max(0, parseInt(e.target.value) || 0))}
-                style={numericInputStyle}
-              />
-            </div>
+          <div>
+            <div style={labelStyle}>One-Time Costs</div>
+            <input
+              type="number"
+              value={tcoOneTimeGtt}
+              onChange={(e) => setTcoOneTimeGtt(Math.max(0, parseInt(e.target.value) || 0))}
+              style={numericInputStyle}
+            />
           </div>
         </GlassCard>
       </div>

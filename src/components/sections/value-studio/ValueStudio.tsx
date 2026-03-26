@@ -175,8 +175,6 @@ const ValueStudio: React.FC = () => {
         setTcoSiteCount={tco.setTcoSiteCount}
         tcoTermMonths={tco.tcoTermMonths}
         setTcoTermMonths={tco.setTcoTermMonths}
-        tcoManagedPerSite={tco.tcoManagedPerSite}
-        setTcoManagedPerSite={tco.setTcoManagedPerSite}
         tcoOneTimeInc={tco.tcoOneTimeInc}
         setTcoOneTimeInc={tco.setTcoOneTimeInc}
         tcoOneTimeGtt={tco.tcoOneTimeGtt}
@@ -192,7 +190,34 @@ const ValueStudio: React.FC = () => {
         incCpePerSite={tco.incCpePerSite}
       />
 
-      {/* 5. Mix Builders */}
+      {/* 5. Match Configurations button */}
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <button
+          onClick={() =>
+            tco.setProposedMix(
+              tco.incumbentMix.map((item) => ({
+                ...item,
+                id: `mix_${Date.now()}_${Math.random()}`,
+              })),
+            )
+          }
+          style={{
+            background: "none",
+            border: `1px dashed ${t.cyan}44`,
+            borderRadius: 8,
+            padding: "6px 18px",
+            fontSize: 11,
+            fontWeight: 600,
+            fontFamily: t.fontM,
+            color: t.cyan,
+            cursor: "pointer",
+          }}
+        >
+          {"\u21C4"} Match Configurations
+        </button>
+      </div>
+
+      {/* 6. Mix Builders */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <MixBuilder
           title={`${tco.incumbentProvider} Stack`}
@@ -208,6 +233,14 @@ const ValueStudio: React.FC = () => {
             updateMixItem: tco.updateMixItem,
           }}
           mrr={tco.incStack.mrr}
+          onMirror={() =>
+            tco.setProposedMix(
+              tco.incumbentMix.map((item) => ({
+                ...item,
+                id: `mix_${Date.now()}_${Math.random()}`,
+              })),
+            )
+          }
         />
         <MixBuilder
           title="GTT Proposed Stack"
@@ -223,6 +256,14 @@ const ValueStudio: React.FC = () => {
             updateMixItem: tco.updateMixItem,
           }}
           mrr={tco.gttStack.mrr}
+          onMirror={() =>
+            tco.setIncumbentMix(
+              tco.proposedMix.map((item) => ({
+                ...item,
+                id: `mix_${Date.now()}_${Math.random()}`,
+              })),
+            )
+          }
         />
       </div>
 

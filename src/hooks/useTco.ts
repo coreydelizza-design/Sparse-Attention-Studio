@@ -1,6 +1,6 @@
 /* ──────────────────────────────────────────────────────────────
    useTco – TCO / Value-Studio calculator hook
-   TypeScript conversion of the original JSX hook.
+   Unified like-for-like comparison: same categories both sides.
    ────────────────────────────────────────────────────────────── */
 
 import { useState, useMemo } from "react";
@@ -9,6 +9,7 @@ import {
   GTT_RATES,
   CPE_COMPLEXITY,
   ENVISION_TIERS,
+  UNIFIED_ACCESS_TYPES,
   speedMultiplier,
 } from "../data/tco";
 
@@ -36,16 +37,24 @@ export interface Stack {
 let _mixId = 0;
 const nextId = (): string => `mix_${++_mixId}`;
 
-// ── Default mix items ────────────────────────────────────────
+// ── Label map for line-item display ──────────────────────────
 
-const DEFAULT_INC_MIX: MixItem[] = [
+const LABEL_MAP: Record<string, string> = {};
+for (const at of UNIFIED_ACCESS_TYPES) {
+  LABEL_MAP[at.value] = at.label;
+}
+
+// ── Default mix (identical both sides) ───────────────────────
+
+const DEFAULT_MIX: MixItem[] = [
   { id: nextId(), accessType: "mpls", speed: 100, qty: 10 },
-  { id: nextId(), accessType: "dia", speed: 100, qty: 5 },
-];
-const DEFAULT_GTT_MIX: MixItem[] = [
   { id: nextId(), accessType: "sdwan", speed: 200, qty: 10 },
   { id: nextId(), accessType: "dia", speed: 100, qty: 5 },
+  { id: nextId(), accessType: "security", speed: 0, qty: 25 },
+  { id: nextId(), accessType: "cpe", speed: 0, qty: 25 },
 ];
+
+const cloneMix = (): MixItem[] => DEFAULT_MIX.map((m) => ({ ...m, id: nextId() }));
 
 // ── Hook ─────────────────────────────────────────────────────
 
@@ -61,9 +70,9 @@ export default function useTco() {
   const [tcoRedundancy, setTcoRedundancy] = useState<number>(10);
   const [cpeComplexity, setCpeComplexity] = useState<string>("standard");
   const [envisionTier, setEnvisionTier] = useState<string>("professional");
-  const [incumbentMix, setIncumbentMix] = useState<MixItem[]>(DEFAULT_INC_MIX);
+  const [incumbentMix, setIncumbentMix] = useState<MixItem[]>(cloneMix);
   const [incumbentProvider, setIncumbentProvider] = useState<string>("AT&T");
-  const [proposedMix, setProposedMix] = useState<MixItem[]>(DEFAULT_GTT_MIX);
+  const [proposedMix, setProposedMix] = useState<MixItem[]>(cloneMix);
 
   // ── Format helper ────────────────────────────────────────
 
@@ -114,15 +123,24 @@ export default function useTco() {
     _benchmark: string,
   ): number => {
     const rates = getProviderRates(incumbentProvider);
-    const baseMap: Record<string, number[]> = {
-      mpls: rates.mpls,
-      dia: rates.circuit,
-      broadband: rates.circuit,
-      sdwan: rates.sdwan,
-      p2p: rates.circuit,
-    };
-    const base = (baseMap[accessType] || rates.circuit)[2];
-    return Math.round(base * speedMultiplier(speed));
+    let base: number;
+    let multiplier = 1;
+
+    switch (accessType) {
+      case "mpls":        base = rates.mpls[2]; break;
+      case "sdwan":       base = rates.sdwan[2]; break;
+      case "dia":         base = rates.circuit[2]; break;
+      case "broadband":   base = rates.circuit[2]; multiplier = 0.6; break;
+      case "p2p":         base = rates.circuit[2]; multiplier = 1.3; break;
+      case "wavelength":  base = rates.circuit[2]; multiplier = 4.0; break;
+      case "security":    base = rates.security[2]; break;
+      case "managed_svc": base = tcoManagedPerSite; break;
+      case "cpe":         base = rates.cpe[2]; break;
+      default:            base = rates.circuit[2]; break;
+    }
+
+    if (speed <= 0) return Math.round(base * multiplier);
+    return Math.round(base * multiplier * speedMultiplier(speed));
   };
 
   const getGttUnitPrice = (
@@ -131,17 +149,14 @@ export default function useTco() {
     benchmark: string,
   ): number => {
     const bIdx = benchmark === "low" ? 0 : benchmark === "high" ? 2 : 1;
-    const baseMap: Record<string, number[]> = {
-      sdwan: GTT_RATES.sdwan,
-      dia: GTT_RATES.network,
-      mpls: GTT_RATES.network,
-      wavelength: GTT_RATES.network,
-    };
-    const base = (baseMap[accessType] || GTT_RATES.network)[bIdx];
+    const rateArr = GTT_RATES[accessType] || GTT_RATES.dia;
+    const base = rateArr[bIdx];
+
+    if (speed <= 0) return base;
     return Math.round(base * speedMultiplier(speed));
   };
 
-  // ── CPE pricing ──────────────────────────────────────────
+  // ── CPE pricing (for consolidation savings section) ──────
 
   const incCpePerSite = useMemo<number>(() => {
     const rates = getProviderRates(incumbentProvider);
@@ -157,6 +172,17 @@ export default function useTco() {
   const cpeSavingsMonthly = cpeSavingsPerSite * tcoSiteCount;
   const cpeSavingsAnnual = cpeSavingsMonthly * 12;
 
+  // ── Line-item label helper ───────────────────────────────
+
+  const buildLabel = (item: MixItem, unitPrice: number): string => {
+    const name = LABEL_MAP[item.accessType] || item.accessType.toUpperCase();
+    if (item.speed <= 0) {
+      return `${name} × ${item.qty} @ $${unitPrice}/site`;
+    }
+    const speedStr = item.speed >= 1000 ? `${item.speed / 1000}G` : `${item.speed}M`;
+    return `${name} ${speedStr} × ${item.qty} @ $${unitPrice}/mo`;
+  };
+
   // ── Incumbent stack ──────────────────────────────────────
 
   const incStack = useMemo<Stack>(() => {
@@ -165,23 +191,8 @@ export default function useTco() {
     for (const item of incumbentMix) {
       const unit = getIncumbentUnitPrice(item.accessType, item.speed, "high");
       const monthly = unit * item.qty;
-      lines.push({
-        label: `${item.accessType.toUpperCase()} ${item.speed}M × ${item.qty} @ $${unit}/mo`,
-        monthly,
-      });
+      lines.push({ label: buildLabel(item, unit), monthly });
     }
-
-    if (tcoManagedPerSite > 0) {
-      lines.push({
-        label: `Managed services ($${tcoManagedPerSite}/site × ${tcoSiteCount})`,
-        monthly: tcoManagedPerSite * tcoSiteCount,
-      });
-    }
-
-    lines.push({
-      label: `CPE / edge ($${incCpePerSite}/site × ${tcoSiteCount})`,
-      monthly: incCpePerSite * tcoSiteCount,
-    });
 
     const baseMrr = lines.reduce((s, l) => s + l.monthly, 0);
 
@@ -195,48 +206,18 @@ export default function useTco() {
 
     const mrr = lines.reduce((s, l) => s + l.monthly, 0);
     return { lines, mrr };
-  }, [incumbentMix, tcoSiteCount, tcoManagedPerSite, tcoRedundancy, incCpePerSite, incumbentProvider, cpeComplexity]);
+  }, [incumbentMix, tcoSiteCount, tcoRedundancy, incumbentProvider, cpeComplexity, tcoManagedPerSite]);
 
   // ── GTT stack ────────────────────────────────────────────
 
   const gttStack = useMemo<Stack>(() => {
-    const bIdx = tcoBenchmark === "low" ? 0 : tcoBenchmark === "high" ? 2 : 1;
     const lines: StackLine[] = [];
-
-    const labelMap: Record<string, string> = {
-      sdwan: "Managed SD-WAN",
-      dia: "DIA",
-      mpls: "IP Transit",
-      wavelength: "Wavelength",
-    };
 
     for (const item of proposedMix) {
       const unit = getGttUnitPrice(item.accessType, item.speed, tcoBenchmark);
       const monthly = unit * item.qty;
-      const accessLabel = labelMap[item.accessType] || item.accessType.toUpperCase();
-      lines.push({
-        label: `${accessLabel} ${item.speed}M × ${item.qty} @ $${unit}/mo`,
-        monthly,
-      });
+      lines.push({ label: buildLabel(item, unit), monthly });
     }
-
-    if (tcoManagedPerSite > 0) {
-      lines.push({
-        label: `Managed services ($${tcoManagedPerSite}/site × ${tcoSiteCount})`,
-        monthly: tcoManagedPerSite * tcoSiteCount,
-      });
-    }
-
-    const securityCost = GTT_RATES.security[bIdx] * tcoSiteCount;
-    lines.push({
-      label: `Managed security ($${GTT_RATES.security[bIdx]}/site × ${tcoSiteCount})`,
-      monthly: securityCost,
-    });
-
-    lines.push({
-      label: `EnvisionEDGE ($${gttCpePerSite}/site × ${tcoSiteCount})`,
-      monthly: gttCpePerSite * tcoSiteCount,
-    });
 
     const baseMrr = lines.reduce((s, l) => s + l.monthly, 0);
 
@@ -250,7 +231,7 @@ export default function useTco() {
 
     const mrr = lines.reduce((s, l) => s + l.monthly, 0);
     return { lines, mrr };
-  }, [proposedMix, tcoSiteCount, tcoManagedPerSite, tcoRedundancy, gttCpePerSite, tcoBenchmark, envisionTier]);
+  }, [proposedMix, tcoSiteCount, tcoRedundancy, tcoBenchmark, envisionTier, tcoManagedPerSite]);
 
   // ── TCO totals ───────────────────────────────────────────
 
