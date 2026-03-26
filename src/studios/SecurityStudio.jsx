@@ -41,12 +41,6 @@ function SecView({ secTools, setSecTools, secFindings, setSecFindings }) {
     <Nts tag="SECURITY NOTES" tc={T.red} title="Session Notes" sub="Posture, ZT, vendor decisions" value={notes} onChange={setNotes} rows={5} />
     <AIBtn label="Full security posture analysis" color={T.red} data={{ trigger: trigger, triggerNotes: trigNote, successVision: vision, successMetrics: { m1: met1, m2: met2, m3: met3 }, stakeholders: stak, notes: notes, sase: sase, gttServices: gttSvc, vendors: vendors, zt: zt, compliance: comp, complianceUrgency: compUrg, securityDecisions: { saseChoice: sd1, ztApproach: sd2 }, findings: secFindings }} />
 
-    <PrimaryCard tag="DECISIONS" tagColor={T.amber} title="Security strategy">
-      <Decision question="SASE Platform?" options={["FortiSASE", "Zscaler", "Hybrid", "Evaluate"]} selected={sd1} onSelect={setSd1} color={T.red} />
-      <div style={{ borderTop: "1px solid " + T.border }} />
-      <Decision question="ZT approach?" options={["Identity-First", "Network-First", "Converged", "Phased"]} selected={sd2} onSelect={setSd2} color={T.red} />
-    </PrimaryCard>
-
     <Disc tag="SASE/SSE" tagColor={T.violet} title="SASE readiness" summary={"Avg: " + saseAvg + " / 5"} right={<span style={{ fontFamily: T.f, fontSize: 16, fontWeight: 700, color: saseAvg >= 3 ? T.amber : T.red }}>{saseAvg}</span>}>
       {sase.map(function (x, i) { return <div key={i} style={{ borderBottom: i < sase.length - 1 ? "1px solid " + T.border : "none" }}><ScoreRow label={x.label} score={x.score} onChange={function (v) { setSase(sase.map(function (s, j) { return j === i ? Object.assign({}, s, { score: v }) : s; })); }} color={T.violet} /></div>; })}
     </Disc>
@@ -63,6 +57,13 @@ function SecView({ secTools, setSecTools, secFindings, setSecFindings }) {
       {comp.map(function (x, i) { return (<div key={x.id} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0", borderBottom: i < comp.length - 1 ? "1px solid " + T.border : "none" }}><div onClick={function () { setComp(comp.map(function (c, j) { return j === i ? Object.assign({}, c, { applicable: !c.applicable }) : c; })); }} style={{ width: 18, height: 18, borderRadius: 3, border: "1.5px solid " + (x.applicable ? T.amber : T.border), background: x.applicable ? T.amber + "15" : "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>{x.applicable ? <span style={{ fontSize: 11, color: T.amber, fontWeight: 700 }}>{"\u2713"}</span> : null}</div><div style={{ flex: 1 }}><span style={{ fontFamily: T.f, fontSize: 12, color: x.applicable ? T.tp : T.td }}>{x.label}</span><input value={x.notes} onChange={function (e) { setComp(comp.map(function (c, j) { return j === i ? Object.assign({}, c, { notes: e.target.value }) : c; })); }} placeholder="Scope / notes" style={Object.assign({}, smI, { width: "100%", fontSize: 10, marginTop: 4 })} /></div></div>); })}
       <div style={{ borderTop: "1px solid " + T.border, marginTop: 10, paddingTop: 10 }}><Decision question="Compliance urgency?" options={["Audit Imminent", "Annual Review", "Board Requirement", "Future Concern"]} selected={compUrg} onSelect={setCompUrg} color={T.amber} /></div>
     </Disc>
+
+    <PrimaryCard tag="DECISIONS" tagColor={T.amber} title="Security strategy">
+      <Decision question="SASE Platform?" options={["FortiSASE", "Zscaler", "Hybrid", "Evaluate"]} selected={sd1} onSelect={setSd1} color={T.red} />
+      <div style={{ borderTop: "1px solid " + T.border }} />
+      <Decision question="ZT approach?" options={["Identity-First", "Network-First", "Converged", "Phased"]} selected={sd2} onSelect={setSd2} color={T.red} />
+    </PrimaryCard>
+
     <Disc tag="FINDINGS" tagColor={T.red} title="Security findings" summary={secFindings.length + " items"}><Findings items={secFindings} setItems={setSecFindings} placeholder="Add finding..." color={T.red} /></Disc>
     <Disc tag="INVENTORY" tagColor={T.red} title="Security tools" summary={secTools.length + " tools tracked"}><InvTable cols={SEC_COLS} rows={secTools} onRm={function (id) { setSecTools(secTools.filter(function (e) { return e.id !== id; })); }} color={T.red} /></Disc>
   </div>);
