@@ -1,5 +1,5 @@
 /* ──────────────────────────────────────────────────────────────
-   TcoDetails – Line-item breakdown, assumptions table,
+   TcoDetails – Side-by-side line-item breakdown, assumptions,
    AI insight section, recommendations / risks / tips
    ────────────────────────────────────────────────────────────── */
 
@@ -33,6 +33,8 @@ interface TcoDetailsProps {
   gttCpePerSite: number;
   incLines: StackLine[];
   gttLines: StackLine[];
+  incMrr: number;
+  gttMrr: number;
   mrrSavings: number;
   mrrSavingsPct: string;
   tcoSavingsVal: number;
@@ -59,6 +61,8 @@ export const TcoDetails: React.FC<TcoDetailsProps> = ({
   gttCpePerSite,
   incLines,
   gttLines,
+  incMrr,
+  gttMrr,
   mrrSavings,
   mrrSavingsPct,
   tcoSavingsVal,
@@ -73,13 +77,33 @@ export const TcoDetails: React.FC<TcoDetailsProps> = ({
 }) => {
   const { t } = useTheme();
 
+  const incName = incumbentProvider.split(" ")[0].split("/")[0].split("(")[0].trim();
+
+  /* ── Shared line-item row renderer ────────────────────── */
+  const lineRow = (l: StackLine, i: number, total: number) => (
+    <div
+      key={i}
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        padding: "5px 0",
+        borderBottom: i < total - 1 ? `1px solid ${t.borderSubtle}` : "none",
+      }}
+    >
+      <span style={{ fontSize: 12, color: t.textMuted }}>{l.label}</span>
+      <span style={{ fontSize: 12, color: t.text, fontFamily: t.fontM }}>
+        ${l.monthly.toLocaleString()}/mo
+      </span>
+    </div>
+  );
+
   const assumptions = [
     { cat: "Provider", param: "Incumbent", val: incumbentProvider, src: "input" },
     { cat: "Contract", param: "Term Length", val: `${tcoTermMonths} months`, src: "input" },
     { cat: "Pricing", param: "GTT Benchmark", val: tcoBenchmark, src: "input" },
     {
       cat: "Pricing",
-      param: `${incumbentProvider.split(" ")[0]} Benchmark`,
+      param: `${incName} Benchmark`,
       val: "high (top quartile)",
       src: "default",
     },
@@ -106,10 +130,8 @@ export const TcoDetails: React.FC<TcoDetailsProps> = ({
       let s = `Migrating from ${incumbentProvider} to GTT saves ${fmtK(mrrSavings)}/mo (${mrrSavingsPct}%) with ${fmtK(tcoSavingsVal)} total savings over ${tcoTermMonths} months.`;
       if (cpeSavingsPerSite > 0)
         s += ` CPE consolidation via EnvisionEDGE saves an additional ${fmtK(Math.abs(cpeSavingsAnnual))}/year.`;
-      if (bwUplift > 0)
-        s += ` Bandwidth increases by ${bwUplift}%.`;
-      if (paybackMo !== null && paybackMo > 0)
-        s += ` Investment payback in ${paybackMo} months.`;
+      if (bwUplift > 0) s += ` Bandwidth increases by ${bwUplift}%.`;
+      if (paybackMo !== null && paybackMo > 0) s += ` Investment payback in ${paybackMo} months.`;
       s += ` Confidence: ${tcoConfidence}.`;
       return s;
     }
@@ -123,72 +145,45 @@ export const TcoDetails: React.FC<TcoDetailsProps> = ({
   ];
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-      {/* ── Left — Line Items ───────────────────────────── */}
-      <GlassCard>
-        <SectionHeader tag="BREAKDOWN">Line Items</SectionHeader>
-
-        {/* Incumbent */}
-        <div
-          style={{
-            fontSize: 10,
-            fontWeight: 600,
-            color: t.rose,
-            letterSpacing: "0.06em",
-            marginBottom: 8,
-          }}
-        >
-          {incumbentProvider.toUpperCase()}
-        </div>
-        {incLines.map((l, i) => (
-          <div
-            key={i}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "5px 0",
-              borderBottom: `1px solid ${t.borderSubtle}`,
-            }}
-          >
-            <span style={{ fontSize: 12, color: t.textMuted }}>{l.label}</span>
-            <span style={{ fontSize: 12, color: t.text, fontFamily: t.fontM }}>
-              ${l.monthly.toLocaleString()}/mo
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* ── Side-by-side Line Items ─────────────────────── */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        {/* LEFT — Incumbent line items */}
+        <GlassCard style={{ position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: t.rose }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ width: 8, height: 8, borderRadius: 2, background: t.rose }} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: t.rose, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                {incName} Line Items
+              </span>
+            </div>
+            <span style={{ fontSize: 14, fontWeight: 700, color: t.rose, fontFamily: t.fontM }}>
+              ${incMrr.toLocaleString()}/mo
             </span>
           </div>
-        ))}
+          {incLines.map((l, i) => lineRow(l, i, incLines.length))}
+        </GlassCard>
 
-        {/* GTT */}
-        <div
-          style={{
-            fontSize: 10,
-            fontWeight: 600,
-            color: t.emerald,
-            letterSpacing: "0.06em",
-            marginBottom: 8,
-            marginTop: 16,
-          }}
-        >
-          GTT PROPOSED
-        </div>
-        {gttLines.map((l, i) => (
-          <div
-            key={i}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "5px 0",
-              borderBottom: `1px solid ${t.borderSubtle}`,
-            }}
-          >
-            <span style={{ fontSize: 12, color: t.textMuted }}>{l.label}</span>
-            <span style={{ fontSize: 12, color: t.text, fontFamily: t.fontM }}>
-              ${l.monthly.toLocaleString()}/mo
+        {/* RIGHT — GTT line items */}
+        <GlassCard style={{ position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: t.emerald }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ width: 8, height: 8, borderRadius: 2, background: t.emerald }} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: t.emerald, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                GTT Line Items
+              </span>
+            </div>
+            <span style={{ fontSize: 14, fontWeight: 700, color: t.emerald, fontFamily: t.fontM }}>
+              ${gttMrr.toLocaleString()}/mo
             </span>
           </div>
-        ))}
-      </GlassCard>
+          {gttLines.map((l, i) => lineRow(l, i, gttLines.length))}
+        </GlassCard>
+      </div>
 
-      {/* ── Right — Assumptions + AI ────────────────────── */}
+      {/* ── Assumptions + AI Insight ────────────────────── */}
       <GlassCard>
         <SectionHeader tag="INPUTS">Assumptions Used</SectionHeader>
 

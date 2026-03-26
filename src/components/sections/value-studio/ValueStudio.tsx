@@ -268,6 +268,8 @@ const ValueStudio: React.FC = () => {
         gttCpePerSite={tco.gttCpePerSite}
         incLines={tco.incStack.lines}
         gttLines={tco.gttStack.lines}
+        incMrr={tco.incStack.mrr}
+        gttMrr={tco.gttStack.mrr}
         mrrSavings={tco.mrrSavings}
         mrrSavingsPct={String(tco.mrrSavingsPct)}
         tcoSavingsVal={tco.tcoSavingsVal}
